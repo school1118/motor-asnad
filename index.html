@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اسناد موتور</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:Tahoma,sans-serif;background:#f0f2f5;margin:0;padding:15px;direction:rtl}
+.login{position:fixed;inset:0;background:linear-gradient(135deg,#3498db,#2c3e50);display:flex;align-items:center;justify-content:center;z-index:99}
+.login-box{background:#fff;padding:30px;border-radius:14px;max-width:380px;width:90%;text-align:center}
+.login-box input{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:15px;text-align:center;letter-spacing:2px;box-sizing:border-box}
+.login-box button{width:100%;margin-top:12px;padding:12px;background:#3498db;color:#fff;border:none;border-radius:8px;font-size:15px;cursor:pointer}
+.err{color:#e74c3c;font-size:13px;margin-top:10px;min-height:18px}
+.container{max-width:1200px;margin:auto}
+h1{text-align:center;color:#2c3e50;font-size:22px}
+.bar{text-align:center;padding:8px;border-radius:8px;margin-bottom:15px;font-size:13px;font-weight:bold}
+.on{background:#d4edda;color:#155724}
+.off{background:#f8d7da;color:#721c24}
+.card{background:#fff;border-radius:10px;padding:18px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:14px;font-family:inherit;box-sizing:border-box}
+input:focus,select:focus{outline:none;border-color:#3498db}
+input.dup{border-color:#e74c3c;background:#fdecea}
+button{padding:10px 16px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit;margin:2px}
+button:disabled{opacity:0.5;cursor:not-allowed}
+.primary{background:#3498db;color:#fff}
+.success{background:#27ae60;color:#fff}
+.warning{background:#f39c12;color:#fff}
+.danger{background:#e74c3c;color:#fff}
+.gray{background:#7f8c8d;color:#fff}
+.sm{padding:6px 10px;font-size:12px}
+.logout{position:fixed;top:15px;left:15px;background:#e74c3c;color:#fff;padding:8px 14px;font-size:13px;border-radius:8px;z-index:100}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+.filters input,.filters select{flex:1;min-width:150px}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{padding:12px 8px;text-align:right;border-bottom:1px solid #eee;font-size:14px}
+th{background:#34495e;color:#fff;font-weight:normal}
+tr.dup-row{background:#fdecea}
+td.dup-cell{color:#c0392b;font-weight:bold}
+.badge{padding:4px 10px;border-radius:12px;font-size:12px;display:inline-block}
+.bp{background:#fff3cd;color:#856404}
+.ba{background:#d4edda;color:#155724}
+.bd{background:#d1ecf1;color:#0c5460}
+.bu{background:#e2e3e5;color:#6c757d}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:15px}
+.stat{background:#fff;padding:15px;border-radius:10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.num{font-size:24px;font-weight:bold;margin-bottom:5px}
+.lbl{font-size:13px;color:#777}
+.warn{color:#c0392b;font-size:12px;margin-top:6px;display:none}
+.hint{font-size:12px;color:#888;margin-top:8px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<div class="login" id="loginScreen">
+  <div class="login-box">
+    <h2>ورود به سیستم</h2>
+    <p style="color:#888;font-size:13px">رمز عبور را وارد کنید</p>
+    <input type="password" id="pass" placeholder="......" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">ورود</button>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<button class="logout" id="logoutBtn" style="display:none" onclick="doLogout()">خروج</button>
+
+<div class="container" id="main" style="display:none">
+  <h1>سیستم مدیریت اسناد موتورسیکلت</h1>
+  <div class="bar on" id="bar">آنلاین</div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="s1" style="color:#3498db">0</div><div class="lbl">کل</div></div>
+    <div class="stat"><div class="num" id="s2" style="color:#f39c12">0</div><div class="lbl">در حال انجام</div></div>
+    <div class="stat"><div class="num" id="s3" style="color:#27ae60">0</div><div class="lbl">موجود</div></div>
+    <div class="stat"><div class="num" id="s4" style="color:#0c5460">0</div><div class="lbl">تحویل</div></div>
+    <div class="stat"><div class="num" id="s5" style="color:#6c757d">0</div><div class="lbl">نامشخص</div></div>
+  </div>
+
+  <div class="card">
+    <h3>ثبت سند جدید</h3>
+    <div class="grid">
+      <input type="text" id="cname" placeholder="نام مشتری *">
+      <input type="text" id="bname" placeholder="نام موتور *">
+      <input type="text" id="plate" placeholder="شماره پلاک *" oninput="checkDup()">
+      <textarea id="notes" placeholder="توضیحات" rows="1"></textarea>
+    </div>
+    <div class="warn" id="dupWarn">این پلاک قبلا ثبت شده</div>
+    <div style="margin-top:10px">
+      <button class="primary" onclick="addDoc()">ثبت</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="filters">
+      <input type="text" id="search" placeholder="جستجو..." oninput="render()">
+      <select id="fstat" onchange="render()">
+        <option value="">همه</option>
+        <option>در حال انجام</option>
+        <option>موجود</option>
+        <option>تحویل شده</option>
+        <option>مشخص نیست</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>#</th><th>نام مشتری</th><th>موتور</th><th>پلاک</th><th>وضعیت</th><th>تاریخ</th><th>عملیات</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================
+   تنظیمات — این سه خط را کامل کن
+   ============================================ */
+var SUPABASE_URL = 'https://vljyxznaurhknazinop.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_x3y3k-cU317WrjkfQSdSkA_06o3CRJd';
+var APP_PASSWORD = 'moto1404';
+
+/* ============================================ */
+
+var VALID = ['در حال انجام','موجود','تحویل شده'];
+var UNKNOWN = 'مشخص نیست';
+var SESSION = 'moto_auth';
+
+var sb = null;
+var docs = [];
+var online = navigator.onLine;
+var logged = false;
+
+function doLogin() {
+  var p = document.getElementById('pass').value;
+  var e = document.getElementById('err');
+  if (p === APP_PASSWORD) {
+    sessionStorage.setItem(SESSION, '1');
+    logged = true;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+    document.getElementById('logoutBtn').style.display = 'block';
+    init();
+  } else {
+    e.textContent = 'رمز اشتباه است';
+    document.getElementById('pass').value = '';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem(SESSION);
+  location.reload();
+}
+
+async function init() {
+  try {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    await load();
+    sb.channel('ch').on('postgres_changes', {event:'*', schema:'public', table:'documents'}, function(){ load(); }).subscribe();
+  } catch(err) {
+    console.error(err);
+    alert('خطا در اتصال: ' + err.message);
+  }
+}
+
+async function load() {
+  var r = await sb.from('documents').select('*').order('created_at', {ascending:false});
+  if (r.error) { console.error(r.error); alert('خطا: ' + r.error.message); return; }
+  docs = r.data || [];
+  render();
+}
+
+function updateBar() {
+  var b = document.getElementById('bar');
+  online = navigator.onLine;
+  b.className = 'bar ' + (online ? 'on' : 'off');
+  b.textContent = online ? 'آنلاین' : 'آفلاین - فقط مشاهده';
+  render();
+}
+window.addEventListener('online', updateBar);
+window.addEventListener('offline', updateBar);
+
+function jdate(iso) {
+  try { return new Date(iso).toLocaleDateString('fa-IR'); } catch(e) { return '-'; }
+}
+
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function isDup(plate, ex) {
+  var p = String(plate || '').trim();
+  if (!p) return false;
+  for (var i=0; i<docs.length; i++) {
+    if (docs[i].id !== ex && String(docs[i].plate_number).trim() === p) return true;
+  }
+  return false;
+}
+
+function checkDup() {
+  var p = document.getElementById('plate').value.trim();
+  var w = document.getElementById('dupWarn');
+  var inp = document.getElementById('plate');
+  if (p && isDup(p)) {
+    inp.classList.add('dup');
+    w.style.display = 'block';
+  } else {
+    inp.classList.remove('dup');
+    w.style.display = 'none';
+  }
+}
+
+async function addDoc() {
+  if (!online) { alert('آفلاین - ثبت ممکن نیست'); return; }
+  var cn = document.getElementById('cname').value.trim();
+  var bn = document.getElementById('bname').value.trim();
+  var pl = document.getElementById('plate').value.trim();
+  var nt = document.getElementById('notes').value.trim();
+  if (!cn || !bn || !pl) { alert('همه فیلدهای اجباری را پر کنید'); return; }
+  if (isDup(pl) && !confirm('پلاک تکراری. ادامه؟')) return;
+  var r = await sb.from('documents').insert([{customer_name:cn, bike_name:bn, plate_number:pl, notes:nt, status:'در حال انجام'}]);
+  if (r.error) { alert('خطا: ' + r.error.message); return; }
+  document.getElementById('cname').value = '';
+  document.getElementById('bname').value = '';
+  document.getElementById('plate').value = '';
+  document.getElementById('notes').value = '';
+  checkDup();
+}
+
+async function changeStatus(id, ns) {
+  if (!online) { alert('آفلاین - ممکن نیست'); return; }
+  var d = null;
+  for (var i=0; i<docs.length; i++) if (docs[i].id === id) d = docs[i];
+  if (!d) return;
+  var rules = {
+    'در حال انجام': ['موجود'],
+    'موجود': ['تحویل شده'],
+    'تحویل شده': [],
+    'مشخص نیست': ['در حال انجام','موجود']
+  };
+  if (!rules[d.status] || rules[d.status].indexOf(ns) === -1) { alert('تبدیل مجاز نیست'); return; }
+  if (!confirm('تغییر به ' + ns + '؟')) return;
+  var r = await sb.from('documents').update({status:ns, updated_at:new Date().toISOString()}).eq('id', id);
+  if (r.error) alert('خطا: ' + r.error.message);
+}
+
+async function delDoc(id) {
+  if (!online) { alert('آفلاین'); return; }
+  if (!confirm('حذف شود؟')) return;
+  var r = await sb.from('documents').delete().eq('id', id);
+  if (r.error) alert('خطا: ' + r.error.message);
+}
+
+function badge(s) {
+  var c = {'در حال انجام':'bp','موجود':'ba','تحویل شده':'bd','مشخص نیست':'bu'}[s] || 'bu';
+  return '<span class="badge ' + c + '">' + s + '</span>';
+}
+
+function actions(d) {
+  var h = '';
+  var dis = online ? '' : 'disabled';
+  if (d.status === 'در حال انجام') {
+    h += '<button class="sm success" ' + dis + ' onclick="changeStatus(\'' + d.id + '\',\'موجود\')">موجود</button>';
+  } else if (d.status === 'موجود') {
+    h += '<button class="sm warning" ' + dis + ' onclick="changeStatus(\'' + d.id + '\',\'تحویل شده\')">تحویل</button>';
+  } else if (d.status === 'مشخص نیست') {
+    h += '<button class="sm success" ' + dis + ' onclick="changeStatus(\'' + d.id + '\',\'در حال انجام\')">در حال انجام</button>';
+  } else {
+    h += '<span style="color:#27ae60;font-size:12px">تکمیل</span>';
+  }
+  h += ' <button class="sm danger" ' + dis + ' onclick="delDoc(\'' + d.id + '\')">حذف</button>';
+  return h;
+}
+
+function filtered() {
+  var s = document.getElementById('search').value.trim().toLowerCase();
+  var f = document.getElementById('fstat').value;
+  return docs.filter(function(d) {
+    var ms = !s || d.customer_name.toLowerCase().indexOf(s) !== -1 || d.bike_name.toLowerCase().indexOf(s) !== -1 || d.plate_number.toLowerCase().indexOf(s) !== -1;
+    var mf = !f || d.status === f;
+    return ms && mf;
+  });
+}
+
+function plateCount() {
+  var m = {};
+  docs.forEach(function(d) {
+    var k = String(d.plate_number || '').trim();
+    m[k] = (m[k] || 0) + 1;
+  });
+  return m;
+}
+
+function render() {
+  if (!logged) return;
+  var list = filtered();
+  var pc = plateCount();
+  document.getElementById('s1').textContent = docs.length;
+  document.getElementById('s2').textContent = docs.filter(function(d){return d.status==='در حال انجام'}).length;
+  document.getElementById('s3').textContent = docs.filter(function(d){return d.status==='موجود'}).length;
+  document.getElementById('s4').textContent = docs.filter(function(d){return d.status==='تحویل شده'}).length;
+  document.getElementById('s5').textContent = docs.filter(function(d){return d.status==='مشخص نیست'}).length;
+
+  var tb = document.getElementById('tbody');
+  if (!list.length) {
+    tb.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#999">سندی یافت نشد</td></tr>';
+    return;
+  }
+  tb.innerHTML = list.map(function(d, i) {
+    var dup = pc[String(d.plate_number || '').trim()] > 1;
+    return '<tr class="' + (dup ? 'dup-row' : '') + '">' +
+      '<td>' + (i+1) + '</td>' +
+      '<td>' + esc(d.customer_name) + '</td>' +
+      '<td>' + esc(d.bike_name) + '</td>' +
+      '<td class="' + (dup ? 'dup-cell' : '') + '">' + esc(d.plate_number) + (dup ? ' ⚠' : '') + '</td>' +
+      '<td>' + badge(d.status) + '</td>' +
+      '<td>' + jdate(d.created_at) + '</td>' +
+      '<td>' + actions(d) + '</td>' +
+    '</tr>';
+  }).join('');
+}
+
+updateBar();
+if (sessionStorage.getItem(SESSION) === '1') {
+  logged = true;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+  document.getElementById('logoutBtn').style.display = 'block';
+  init();
+}
+</script>
+</body>
+</html>
