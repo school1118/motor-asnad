@@ -61,8 +61,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
 .log-box .upd{color:#f39c12}
 .log-box .skip{color:#95a5a6}
 .log-box .err{color:#e74c3c}
-
-/* Modal */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
 .modal-bg.show{display:flex}
 .modal{background:#fff;border-radius:12px;padding:24px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
@@ -75,7 +73,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
 </head>
 <body>
 
-<!-- صفحه ورود -->
 <div class="login" id="loginScreen">
   <div class="login-box">
     <h2>ورود به سیستم</h2>
@@ -100,12 +97,9 @@ td.dup-cell{color:#c0392b;font-weight:bold}
     <div class="stat"><div class="num" id="s5" style="color:#6c757d">0</div><div class="lbl">نامشخص</div></div>
   </div>
 
-  <!-- اکسل -->
   <div class="card">
     <h3 style="margin-bottom:12px;color:#2c3e50">📊 مدیریت اکسل</h3>
-
     <div id="fsStatus" class="fs-status fs-off">📁 فایل اکسل مرجع: متصل نیست</div>
-
     <div class="tools">
       <button class="info" onclick="downloadTemplate()">📥 دریافت قالب</button>
       <button class="primary" onclick="document.getElementById('excelInput').click()">📤 ورود از اکسل</button>
@@ -115,16 +109,13 @@ td.dup-cell{color:#c0392b;font-weight:bold}
       <button class="gray" id="syncFileBtn" onclick="syncToLocalFile()" style="display:none">💾 ذخیره فوری</button>
       <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(event)">
     </div>
-
     <div class="hint">
-      🔹 <b>ورود اکسل:</b> ستون‌های «نام مشتری، نام موتور، شماره پلاک، توضیحات» — وضعیت خودکار «در حال انجام» ثبت می‌شود.<br>
-      🔹 <b>اتصال به فایل اکسل:</b> روی کامپیوتر ثابت، فایل مرجع را انتخاب کن — از این به بعد خودکار به‌روز می‌شود (کروم/اِج).
+      🔹 <b>ورود اکسل:</b> ستون‌های «نام مشتری، نام موتور، شماره پلاک، توضیحات» — وضعیت خودکار «در حال انجام».<br>
+      🔹 <b>اتصال به فایل اکسل:</b> روی کامپیوتر ثابت، فایل مرجع رو انتخاب کن — خودکار به‌روز میشه (کروم/اِج).
     </div>
-
     <div class="log-box" id="logBox"></div>
   </div>
 
-  <!-- ثبت -->
   <div class="card">
     <h3 style="margin-bottom:12px;color:#2c3e50">➕ ثبت سند جدید</h3>
     <div class="grid">
@@ -139,7 +130,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
     </div>
   </div>
 
-  <!-- جدول -->
   <div class="card">
     <div class="filters">
       <input type="text" id="search" placeholder="جستجو..." oninput="render()">
@@ -160,7 +150,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   </div>
 </div>
 
-<!-- پنجره ویرایش -->
 <div class="modal-bg" id="editModal">
   <div class="modal">
     <h3>✏️ ویرایش سند</h3>
@@ -201,10 +190,9 @@ td.dup-cell{color:#c0392b;font-weight:bold}
 /* ============================================
    تنظیمات
    ============================================ */
-var SUPABASE_URL = 'https://glzhxqtgfdwmvmpenbod.supabase.co';
+var SUPABASE_URL = 'https://glzhxqtgfdwmvpenbod.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_6A3Mb9Zk5or9O-gWDyt0UA_uVpsyUhy';
 var APP_PASSWORD = 'moto1404';
-
 /* ============================================ */
 
 var VALID = ['در حال انجام','موجود','تحویل شده'];
@@ -220,7 +208,6 @@ var logged = false;
 var fileHandle = null;
 var editingId = null;
 
-/* ============== IndexedDB ============== */
 function openDB() {
   return new Promise(function(resolve, reject) {
     var req = indexedDB.open(FS_DB, 1);
@@ -245,7 +232,6 @@ async function loadHandle() {
   } catch(e) { return null; }
 }
 
-/* ============== ورود/خروج ============== */
 function doLogin() {
   var p = document.getElementById('pass').value;
   var e = document.getElementById('err');
@@ -266,7 +252,6 @@ function doLogout() {
   location.reload();
 }
 
-/* ============== Supabase ============== */
 async function init() {
   try {
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -285,7 +270,6 @@ async function load() {
   render();
 }
 
-/* ============== آنلاین/آفلاین ============== */
 function updateBar() {
   var b = document.getElementById('bar');
   online = navigator.onLine;
@@ -296,7 +280,6 @@ function updateBar() {
 window.addEventListener('online', updateBar);
 window.addEventListener('offline', updateBar);
 
-/* ============== کمکی ============== */
 function jdate(iso) {
   try { return new Date(iso).toLocaleDateString('fa-IR'); } catch(e) { return '-'; }
 }
@@ -333,7 +316,6 @@ function checkDup() {
   }
 }
 
-/* ============== لاگ ============== */
 function log(msg, type) {
   var box = document.getElementById('logBox');
   box.style.display = 'block';
@@ -349,7 +331,6 @@ function clearLog() {
   box.style.display = 'none';
 }
 
-/* ============== ثبت ============== */
 async function addDoc() {
   if (!online) { alert('آفلاین - ثبت ممکن نیست'); return; }
   var cn = document.getElementById('cname').value.trim();
@@ -367,9 +348,8 @@ async function addDoc() {
   checkDup();
 }
 
-/* ============== ویرایش ============== */
 function openEdit(id) {
-  if (!online) { alert('🔴 ویرایش فقط آنلاین امکان‌پذیر است'); return; }
+  if (!online) { alert('🔴 ویرایش فقط آنلاین'); return; }
   var d = null;
   for (var i=0; i<docs.length; i++) if (docs[i].id === id) d = docs[i];
   if (!d) return;
@@ -404,22 +384,15 @@ async function saveEdit() {
   var pl = document.getElementById('edit_plate').value.trim();
   var nt = document.getElementById('edit_notes').value.trim();
   var st = document.getElementById('edit_status').value;
-
   if (!cn || !bn || !pl) { alert('همه فیلدهای اجباری را پر کنید'); return; }
   if (isDup(pl, editingId)) {
     if (!confirm('⚠️ پلاک تکراری است. باز هم ذخیره شود؟')) return;
   }
   if (VALID.indexOf(st) === -1 && st !== UNKNOWN) st = UNKNOWN;
-
   var r = await sb.from('documents').update({
-    customer_name: cn,
-    bike_name: bn,
-    plate_number: pl,
-    notes: nt,
-    status: st,
+    customer_name: cn, bike_name: bn, plate_number: pl, notes: nt, status: st,
     updated_at: new Date().toISOString()
   }).eq('id', editingId);
-
   if (r.error) { alert('خطا: ' + r.error.message); return; }
   closeEdit();
   await load();
@@ -427,7 +400,6 @@ async function saveEdit() {
   log('✏️ سند ویرایش شد: ' + cn + ' | پلاک ' + pl, 'upd');
 }
 
-/* ============== تغییر وضعیت ============== */
 async function changeStatus(id, ns) {
   if (!online) { alert('آفلاین - ممکن نیست'); return; }
   var d = null;
@@ -443,19 +415,17 @@ async function changeStatus(id, ns) {
   if (!confirm('تغییر به ' + ns + '؟')) return;
   var r = await sb.from('documents').update({status:ns, updated_at:new Date().toISOString()}).eq('id', id);
   if (r.error) alert('خطا: ' + r.error.message);
-  else { await autoSyncFile(); }
+  else await autoSyncFile();
 }
 
-/* ============== حذف ============== */
 async function delDoc(id) {
   if (!online) { alert('آفلاین'); return; }
   if (!confirm('حذف شود؟')) return;
   var r = await sb.from('documents').delete().eq('id', id);
   if (r.error) alert('خطا: ' + r.error.message);
-  else { await autoSyncFile(); }
+  else await autoSyncFile();
 }
 
-/* ============== نمایش ============== */
 function badge(s) {
   var c = {'در حال انجام':'bp','موجود':'ba','تحویل شده':'bd','مشخص نیست':'bu'}[s] || 'bu';
   return '<span class="badge ' + c + '">' + s + '</span>';
@@ -520,9 +490,6 @@ function render() {
   }).join('');
 }
 
-/* ============================================================
-   اکسل: قالب
-   ============================================================ */
 function downloadTemplate() {
   var data = [
     {'نام مشتری':'علی رضایی','نام موتور':'هوندا ۱۲۵','شماره پلاک':'12345','توضیحات':''},
@@ -535,9 +502,6 @@ function downloadTemplate() {
   XLSX.writeFile(wb, 'قالب-اسناد.xlsx');
 }
 
-/* ============================================================
-   اکسل: ورود تجمعی
-   ============================================================ */
 async function importExcel(event) {
   if (!online) { alert('ورود اکسل فقط آنلاین'); event.target.value = ''; return; }
   var file = event.target.files[0];
@@ -554,7 +518,6 @@ async function importExcel(event) {
       var ws = wb.Sheets[wb.SheetNames[0]];
       var rows = XLSX.utils.sheet_to_json(ws, {defval:''});
       if (!rows.length) { alert('فایل خالی است.'); clearLog(); return; }
-
       log('📊 ' + rows.length + ' سطر پیدا شد', '');
 
       var toAdd = [];
@@ -566,21 +529,16 @@ async function importExcel(event) {
         var bn = pick(r, ['نام موتور','موتور','bike','motor']).trim();
         var pl = pick(r, ['شماره پلاک','پلاک','plate']).trim();
         var nt = pick(r, ['توضیحات','note','notes','description']).trim();
-
         if (!cn || !bn || !pl) { skipped++; return; }
-
         var existing = findDocByPlate(pl);
         if (!existing) {
-          // سند جدید — وضعیت همیشه «در حال انجام»
           toAdd.push({customer_name:cn, bike_name:bn, plate_number:pl, notes:nt, status:'در حال انجام'});
           log('➕ جدید: ' + cn + ' | پلاک ' + pl, 'ok');
         } else {
-          // سند موجود — فقط نام/موتور/توضیحات بررسی میشه (وضعیت دست‌نخورده)
           var changes = {};
           if (existing.customer_name !== cn) changes.customer_name = cn;
           if (existing.bike_name !== bn) changes.bike_name = bn;
           if ((existing.notes || '') !== nt) changes.notes = nt;
-
           if (Object.keys(changes).length > 0) {
             changes.updated_at = new Date().toISOString();
             toUpdate.push({id: existing.id, changes: changes, plate: pl, name: cn});
@@ -602,12 +560,10 @@ async function importExcel(event) {
         alert('هیچ سند جدید یا تغییری نیست.');
         return;
       }
-
       if (!confirm('➕ ' + toAdd.length + ' سند جدید\n🔄 ' + toUpdate.length + ' سند به‌روز\n\nادامه؟')) {
         log('❌ لغو شد.', 'err');
         return;
       }
-
       if (toAdd.length) {
         var r1 = await sb.from('documents').insert(toAdd);
         if (r1.error) log('❌ خطا: ' + r1.error.message, 'err');
@@ -646,9 +602,6 @@ function pick(obj, keys) {
   return '';
 }
 
-/* ============================================================
-   اکسل: خروجی
-   ============================================================ */
 function docsToRows(list) {
   return list.map(function(d, i) {
     return {
@@ -680,9 +633,6 @@ function exportExcelFiltered() {
   XLSX.writeFile(makeWorkbook(list), 'اسناد-فیلترشده-' + new Date().toISOString().slice(0,10) + '.xlsx');
 }
 
-/* ============================================================
-   فایل اکسل محلی
-   ============================================================ */
 function updateFsStatus() {
   var el = document.getElementById('fsStatus');
   var connectBtn = document.getElementById('connectFileBtn');
@@ -752,7 +702,6 @@ async function autoSyncFile() {
   if (ok) log('💾 فایل اکسل خودکار به‌روز شد.', 'ok');
 }
 
-/* ============== شروع ============== */
 updateBar();
 updateFsStatus();
 if (sessionStorage.getItem(SESSION) === '1') {
