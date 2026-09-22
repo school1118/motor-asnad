@@ -2,59 +2,104 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>اسناد موتور</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-body{font-family:Tahoma,sans-serif;background:#f0f2f5;margin:0;padding:15px;direction:rtl}
-.login{position:fixed;inset:0;background:linear-gradient(135deg,#3498db,#2c3e50);display:flex;align-items:center;justify-content:center;z-index:99}
-.login-box{background:#fff;padding:30px;border-radius:14px;max-width:380px;width:90%;text-align:center}
-.login-box input{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:15px;text-align:center;letter-spacing:2px;box-sizing:border-box}
-.login-box button{width:100%;margin-top:12px;padding:12px;background:#3498db;color:#fff;border:none;border-radius:8px;font-size:15px;cursor:pointer}
+*{box-sizing:border-box}
+body{font-family:Vazirmatn,Tahoma,sans-serif;background:#f0f2f5;margin:0;padding:12px;direction:rtl;-webkit-text-size-adjust:100%}
+.login{position:fixed;inset:0;background:linear-gradient(135deg,#3498db,#2c3e50);display:flex;align-items:center;justify-content:center;z-index:99;padding:15px}
+.login-box{background:#fff;padding:25px 20px;border-radius:14px;max-width:380px;width:100%;text-align:center}
+.login-box h2{margin:0 0 8px;font-size:20px;color:#2c3e50}
+.login-box p{color:#888;font-size:13px;margin:0 0 15px}
+.login-box input{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:15px;text-align:center;letter-spacing:2px;font-family:inherit}
+.login-box button{width:100%;margin-top:12px;padding:12px;background:#3498db;color:#fff;border:none;border-radius:8px;font-size:15px;cursor:pointer;font-family:inherit}
 .err{color:#e74c3c;font-size:13px;margin-top:10px;min-height:18px}
 .container{max-width:1200px;margin:auto}
-h1{text-align:center;color:#2c3e50;font-size:22px}
-.bar{text-align:center;padding:8px;border-radius:8px;margin-bottom:15px;font-size:13px;font-weight:bold}
+h1{text-align:center;color:#2c3e50;font-size:20px;margin:8px 0 15px}
+.bar{text-align:center;padding:8px;border-radius:8px;margin-bottom:12px;font-size:13px;font-weight:bold}
 .on{background:#d4edda;color:#155724}
 .off{background:#f8d7da;color:#721c24}
-.card{background:#fff;border-radius:10px;padding:18px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:14px;font-family:inherit;box-sizing:border-box}
-input:focus,select:focus{outline:none;border-color:#3498db}
+.card{background:#fff;border-radius:10px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.card h3{margin:0 0 12px;font-size:16px;color:#2c3e50}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:14px;font-family:inherit;background:#fff}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#3498db}
 input.dup{border-color:#e74c3c;background:#fdecea}
-button{padding:10px 16px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit;margin:2px}
+button{padding:10px 14px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit;margin:2px}
 button:disabled{opacity:0.5;cursor:not-allowed}
 .primary{background:#3498db;color:#fff}
 .success{background:#27ae60;color:#fff}
 .warning{background:#f39c12;color:#fff}
 .danger{background:#e74c3c;color:#fff}
 .gray{background:#7f8c8d;color:#fff}
+.info{background:#16a085;color:#fff}
 .sm{padding:6px 10px;font-size:12px}
-.logout{position:fixed;top:15px;left:15px;background:#e74c3c;color:#fff;padding:8px 14px;font-size:13px;border-radius:8px;z-index:100}
-.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
-.filters input,.filters select{flex:1;min-width:150px}
-table{width:100%;border-collapse:collapse;background:#fff}
-th,td{padding:12px 8px;text-align:right;border-bottom:1px solid #eee;font-size:14px}
-th{background:#34495e;color:#fff;font-weight:normal}
+.logout{position:fixed;top:10px;left:10px;background:#e74c3c;color:#fff;padding:8px 12px;font-size:12px;border-radius:8px;z-index:100}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filters input,.filters select{flex:1;min-width:140px}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;background:#fff;min-width:600px}
+th,td{padding:10px 8px;text-align:right;border-bottom:1px solid #eee;font-size:13px}
+th{background:#34495e;color:#fff;font-weight:normal;white-space:nowrap}
 tr.dup-row{background:#fdecea}
 td.dup-cell{color:#c0392b;font-weight:bold}
-.badge{padding:4px 10px;border-radius:12px;font-size:12px;display:inline-block}
+.badge{padding:3px 9px;border-radius:12px;font-size:11px;display:inline-block;white-space:nowrap}
 .bp{background:#fff3cd;color:#856404}
 .ba{background:#d4edda;color:#155724}
 .bd{background:#d1ecf1;color:#0c5460}
 .bu{background:#e2e3e5;color:#6c757d}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:15px}
-.stat{background:#fff;padding:15px;border-radius:10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
-.num{font-size:24px;font-weight:bold;margin-bottom:5px}
-.lbl{font-size:13px;color:#777}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:12px}
+.stat{background:#fff;padding:12px 8px;border-radius:10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.num{font-size:22px;font-weight:bold;margin-bottom:3px}
+.lbl{font-size:12px;color:#777}
 .warn{color:#c0392b;font-size:12px;margin-top:6px;display:none}
-.hint{font-size:12px;color:#888;margin-top:8px;line-height:1.8}
+.hint{font-size:11px;color:#888;margin-top:8px;line-height:1.8}
 .hint code{background:#eef2f5;padding:2px 6px;border-radius:4px;color:#c0392b}
-.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-.file-status{display:inline-block;padding:4px 10px;border-radius:12px;font-size:12px;margin-right:6px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.file-status{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;margin-right:6px}
 .fs-on{background:#d4edda;color:#155724}
 .fs-off{background:#e2e3e5;color:#6c757d}
+
+/* ============ مودال ویرایش ============ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:200;padding:15px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:12px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.modal h3{margin:0 0 15px;color:#2c3e50;font-size:17px}
+.modal .field{margin-bottom:12px}
+.modal .field label{display:block;font-size:12px;color:#555;margin-bottom:5px}
+.modal-actions{display:flex;gap:10px;margin-top:18px}
+.modal-actions button{flex:1;padding:11px;font-size:14px}
+
+/* ============ موبایل ============ */
+@media (max-width:640px){
+  body{padding:8px}
+  h1{font-size:17px;margin:5px 0 10px}
+  .card{padding:12px;margin-bottom:10px}
+  .card h3{font-size:15px}
+  .num{font-size:19px}
+  .lbl{font-size:11px}
+  .stat{padding:10px 5px}
+  .logout{top:8px;left:8px;padding:7px 10px;font-size:11px}
+  .grid{grid-template-columns:1fr}
+  .tools button{flex:1;min-width:calc(50% - 8px)}
+  .filters{flex-direction:column}
+  .filters input,.filters select{min-width:100%}
+  .modal{padding:15px}
+  button{padding:11px 14px;font-size:14px}
+  .sm{padding:8px 10px;font-size:12px}
+  th,td{padding:8px 6px;font-size:12px}
+  table{min-width:520px}
+}
+
+@media (max-width:400px){
+  .stat .num{font-size:17px}
+  .stat .lbl{font-size:10px}
+  h1{font-size:15px}
+}
 </style>
 </head>
 <body>
@@ -62,7 +107,7 @@ td.dup-cell{color:#c0392b;font-weight:bold}
 <div class="login" id="loginScreen">
   <div class="login-box">
     <h2>ورود به سیستم</h2>
-    <p style="color:#888;font-size:13px">رمز عبور را وارد کنید</p>
+    <p>رمز عبور را وارد کنید</p>
     <input type="password" id="pass" placeholder="......" onkeydown="if(event.key==='Enter')doLogin()">
     <button onclick="doLogin()">ورود</button>
     <div class="err" id="err"></div>
@@ -72,7 +117,7 @@ td.dup-cell{color:#c0392b;font-weight:bold}
 <button class="logout" id="logoutBtn" style="display:none" onclick="doLogout()">خروج</button>
 
 <div class="container" id="main" style="display:none">
-  <h1>سیستم مدیریت اسناد موتورسیکلت</h1>
+  <h1>🏍️ مدیریت اسناد موتورسیکلت</h1>
   <div class="bar on" id="bar">آنلاین</div>
 
   <div class="stats">
@@ -83,45 +128,36 @@ td.dup-cell{color:#c0392b;font-weight:bold}
     <div class="stat"><div class="num" id="s5" style="color:#6c757d">0</div><div class="lbl">نامشخص</div></div>
   </div>
 
-  <!-- ====== بخش اکسل ====== -->
   <div class="card">
     <h3>📊 اکسل</h3>
-
     <div class="tools">
-      <button class="primary" onclick="document.getElementById('excelInput').click()">📥 ورود از اکسل</button>
-      <button class="success" onclick="exportExcel('all')">📤 خروجی اکسل (همه)</button>
-      <button class="warning" onclick="exportExcel('filtered')">📤 خروجی (فیلترشده)</button>
-      <button class="gray" onclick="downloadTemplate()">📄 قالب اکسل</button>
+      <button class="primary" onclick="document.getElementById('excelInput').click()">📥 ورود</button>
+      <button class="success" onclick="exportExcel('all')">📤 خروجی همه</button>
+      <button class="warning" onclick="exportExcel('filtered')">📤 خروجی فیلتر</button>
+      <button class="gray" onclick="downloadTemplate()">📄 قالب</button>
       <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(event)">
     </div>
 
-    <div style="border-top:1px solid #eee;padding-top:12px;margin-top:8px">
-      <div style="margin-bottom:8px">
-        <b>🔗 اتصال به فایل اکسل مرجع:</b>
+    <div style="border-top:1px solid #eee;padding-top:12px;margin-top:6px">
+      <div style="margin-bottom:8px;font-size:13px">
+        <b>🔗 فایل اکسل مرجع:</b>
         <span class="file-status fs-off" id="fileStatus">وصل نیست</span>
       </div>
       <div class="tools">
-        <button class="primary" id="linkFileBtn" onclick="linkExcelFile()">📎 اتصال به فایل اکسل روی کامپیوتر</button>
-        <button class="success" id="unlinkFileBtn" style="display:none" onclick="unlinkExcelFile()">🔓 لغو اتصال</button>
-        <button class="gray" id="reloadFileBtn" style="display:none" onclick="reloadFromExcelFile()">🔄 خواندن مجدد از فایل</button>
+        <button class="primary" id="linkFileBtn" onclick="linkExcelFile()">📎 اتصال</button>
+        <button class="success" id="unlinkFileBtn" style="display:none" onclick="unlinkExcelFile()">🔓 لغو</button>
+        <button class="gray" id="reloadFileBtn" style="display:none" onclick="reloadFromExcelFile()">🔄 خواندن مجدد</button>
       </div>
       <div class="hint">
-        💡 وقتی فایل وصل باشد، هر تغییری در برنامه <b>خودکار</b> در فایل اکسل ذخیره می‌شود.
-        <br>
-        ⚠️ این قابلیت فقط در <b>کروم / اِج</b> روی <b>کامپیوتر</b> کار می‌کند و نیاز به HTTPS دارد.
+        💡 فایل مرجع فقط روی <b>کروم / اِج</b> کامپیوتر کار می‌کند.
       </div>
     </div>
 
-    <div class="hint" style="margin-top:10px">
-      📌 ستون‌های موردنیاز در اکسل:
-      <code>نام مشتری</code> ، <code>نام موتور</code> ، <code>شماره پلاک</code> ، 
-      <code>وضعیت سند</code> ، <code>توضیحات</code>
-      <br>
-      اگر وضعیت نامعتبر باشد → <b>«مشخص نیست»</b> ثبت می‌شود.
+    <div class="hint" style="margin-top:8px">
+      📌 ستون‌ها: <code>نام مشتری</code> ، <code>نام موتور</code> ، <code>شماره پلاک</code> ، <code>وضعیت سند</code> ، <code>توضیحات</code>
     </div>
   </div>
 
-  <!-- ====== ثبت ====== -->
   <div class="card">
     <h3>➕ ثبت سند جدید</h3>
     <div class="grid">
@@ -130,25 +166,24 @@ td.dup-cell{color:#c0392b;font-weight:bold}
       <input type="text" id="plate" placeholder="شماره پلاک *" oninput="checkDup()">
       <textarea id="notes" placeholder="توضیحات" rows="1"></textarea>
     </div>
-    <div class="warn" id="dupWarn">این پلاک قبلا ثبت شده</div>
+    <div class="warn" id="dupWarn">⚠️ این پلاک قبلا ثبت شده</div>
     <div style="margin-top:10px">
-      <button class="primary" onclick="addDoc()">ثبت</button>
+      <button class="primary" onclick="addDoc()" style="width:100%">➕ ثبت</button>
     </div>
   </div>
 
-  <!-- ====== جدول ====== -->
   <div class="card">
     <div class="filters">
-      <input type="text" id="search" placeholder="جستجو..." oninput="render()">
+      <input type="text" id="search" placeholder="🔍 جستجو..." oninput="render()">
       <select id="fstat" onchange="render()">
-        <option value="">همه</option>
+        <option value="">همه وضعیت‌ها</option>
         <option>در حال انجام</option>
         <option>موجود</option>
         <option>تحویل شده</option>
         <option>مشخص نیست</option>
       </select>
     </div>
-    <div style="overflow-x:auto">
+    <div class="table-wrap">
       <table>
         <thead><tr><th>#</th><th>نام مشتری</th><th>موتور</th><th>پلاک</th><th>وضعیت</th><th>تاریخ</th><th>عملیات</th></tr></thead>
         <tbody id="tbody"></tbody>
@@ -157,9 +192,46 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   </div>
 </div>
 
+<!-- ============ مودال ویرایش ============ -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>✏️ ویرایش سند</h3>
+    <input type="hidden" id="editId">
+    <div class="field">
+      <label>نام مشتری *</label>
+      <input type="text" id="editCname">
+    </div>
+    <div class="field">
+      <label>نام موتور *</label>
+      <input type="text" id="editBname">
+    </div>
+    <div class="field">
+      <label>شماره پلاک *</label>
+      <input type="text" id="editPlate">
+    </div>
+    <div class="field">
+      <label>وضعیت سند</label>
+      <select id="editStatus">
+        <option>در حال انجام</option>
+        <option>موجود</option>
+        <option>تحویل شده</option>
+        <option>مشخص نیست</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>توضیحات</label>
+      <textarea id="editNotes" rows="2"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="gray" onclick="closeEditModal()">لغو</button>
+      <button class="success" onclick="saveEdit()">💾 ذخیره</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ============================================
-   تنظیمات — این دو خط را بررسی کن
+   تنظیمات
    ============================================ */
 var SUPABASE_URL = 'https://glzhxqtgfdwmvmpenbod.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_6A3Mb9Zk5or9O-gWDyt0UA_uVpsyUhy';
@@ -175,7 +247,6 @@ var docs = [];
 var online = navigator.onLine;
 var logged = false;
 
-/* برای فایل اکسل مرجع */
 var excelFileHandle = null;
 var autoSaveEnabled = false;
 
@@ -219,18 +290,16 @@ async function load() {
   render();
 }
 
-/* ============ وضعیت آنلاین ============ */
 function updateBar() {
   var b = document.getElementById('bar');
   online = navigator.onLine;
   b.className = 'bar ' + (online ? 'on' : 'off');
-  b.textContent = online ? 'آنلاین' : 'آفلاین - فقط مشاهده';
+  b.textContent = online ? '🟢 آنلاین' : '🔴 آفلاین - فقط مشاهده';
   render();
 }
 window.addEventListener('online', updateBar);
 window.addEventListener('offline', updateBar);
 
-/* ============ توابع کمکی ============ */
 function jdate(iso) {
   try { return new Date(iso).toLocaleDateString('fa-IR'); } catch(e) { return '-'; }
 }
@@ -263,7 +332,7 @@ function checkDup() {
   }
 }
 
-/* ============ ثبت / تغییر / حذف ============ */
+/* ============ ثبت ============ */
 async function addDoc() {
   if (!online) { alert('آفلاین - ثبت ممکن نیست'); return; }
   var cn = document.getElementById('cname').value.trim();
@@ -281,10 +350,10 @@ async function addDoc() {
   document.getElementById('plate').value = '';
   document.getElementById('notes').value = '';
   checkDup();
-  // ذخیره خودکار اکسل (بعد از رفرش load)
   setTimeout(tryAutoSaveExcel, 800);
 }
 
+/* ============ تغییر وضعیت ============ */
 async function changeStatus(id, ns) {
   if (!online) { alert('آفلاین - ممکن نیست'); return; }
   var d = null;
@@ -303,6 +372,7 @@ async function changeStatus(id, ns) {
   else setTimeout(tryAutoSaveExcel, 800);
 }
 
+/* ============ حذف ============ */
 async function delDoc(id) {
   if (!online) { alert('آفلاین'); return; }
   if (!confirm('حذف شود؟')) return;
@@ -310,6 +380,70 @@ async function delDoc(id) {
   if (r.error) alert('خطا: ' + r.error.message);
   else setTimeout(tryAutoSaveExcel, 800);
 }
+
+/* ============ ✏️ ویرایش ============ */
+function openEdit(id) {
+  var d = null;
+  for (var i=0; i<docs.length; i++) if (docs[i].id === id) d = docs[i];
+  if (!d) return;
+  if (!online) { alert('🔴 آفلاین - ویرایش ممکن نیست'); return; }
+
+  document.getElementById('editId').value = d.id;
+  document.getElementById('editCname').value = d.customer_name || '';
+  document.getElementById('editBname').value = d.bike_name || '';
+  document.getElementById('editPlate').value = d.plate_number || '';
+  document.getElementById('editStatus').value = d.status || 'در حال انجام';
+  document.getElementById('editNotes').value = d.notes || '';
+
+  document.getElementById('editModal').classList.add('show');
+  document.getElementById('editCname').focus();
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('show');
+}
+
+async function saveEdit() {
+  if (!online) { alert('آفلاین'); return; }
+  var id = document.getElementById('editId').value;
+  var cn = document.getElementById('editCname').value.trim();
+  var bn = document.getElementById('editBname').value.trim();
+  var pl = document.getElementById('editPlate').value.trim();
+  var st = document.getElementById('editStatus').value;
+  var nt = document.getElementById('editNotes').value.trim();
+
+  if (!cn || !bn || !pl) { alert('همه فیلدهای اجباری را پر کنید'); return; }
+  if (VALID.indexOf(st) === -1) st = UNKNOWN;
+
+  // چک تکراری پلاک (به‌جز خودش)
+  var dup = false;
+  for (var i=0; i<docs.length; i++) {
+    if (docs[i].id !== id && String(docs[i].plate_number).trim() === pl) { dup = true; break; }
+  }
+  if (dup && !confirm('⚠️ این پلاک در سند دیگری ثبت شده. ذخیره شود؟')) return;
+
+  var r = await sb.from('documents').update({
+    customer_name: cn,
+    bike_name: bn,
+    plate_number: pl,
+    status: st,
+    notes: nt,
+    updated_at: new Date().toISOString()
+  }).eq('id', id);
+
+  if (r.error) { alert('خطا: ' + r.error.message); return; }
+
+  closeEditModal();
+  setTimeout(tryAutoSaveExcel, 800);
+}
+
+// بستن مودال با کلیک بیرون یا کلید Escape
+document.getElementById('editModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeEditModal();
+});
 
 /* ============ نمایش ============ */
 function badge(s) {
@@ -327,9 +461,10 @@ function actions(d) {
   } else if (d.status === 'مشخص نیست') {
     h += '<button class="sm success" ' + dis + ' onclick="changeStatus(\'' + d.id + '\',\'در حال انجام\')">در حال انجام</button>';
   } else {
-    h += '<span style="color:#27ae60;font-size:12px">تکمیل</span>';
+    h += '<span style="color:#27ae60;font-size:11px">✔</span> ';
   }
-  h += ' <button class="sm danger" ' + dis + ' onclick="delDoc(\'' + d.id + '\')">حذف</button>';
+  h += '<button class="sm info" ' + dis + ' onclick="openEdit(\'' + d.id + '\')">✏️ ویرایش</button> ';
+  h += '<button class="sm danger" ' + dis + ' onclick="delDoc(\'' + d.id + '\')">🗑️</button>';
   return h;
 }
 
@@ -381,10 +516,7 @@ function render() {
   }).join('');
 }
 
-/* ============================================================
-   📊 اکسل — بخش ۱: قالب و خروجی
-   ============================================================ */
-
+/* ============ اکسل — قالب و خروجی ============ */
 function downloadTemplate() {
   var data = [{
     'نام مشتری': 'علی رضایی',
@@ -427,10 +559,7 @@ function exportExcel(which) {
   XLSX.writeFile(wb, name + '-' + new Date().toISOString().slice(0,10) + '.xlsx');
 }
 
-/* ============================================================
-   📊 اکسل — بخش ۲: ورود تجمعی
-   ============================================================ */
-
+/* ============ اکسل — ورود تجمعی ============ */
 function pick(obj, keys) {
   for (var i=0; i<keys.length; i++) {
     var k = keys[i];
@@ -458,18 +587,13 @@ async function importExcel(event) {
       var rows = XLSX.utils.sheet_to_json(ws, {defval:''});
       if (!rows.length) { alert('فایل خالی است.'); return; }
 
-      var toAdd = [];        // سطرهای جدید
-      var toUpdate = [];     // سطرهای موجود که اطلاعاتشان عوض شده
-      var skipped = 0;
-
-      // ایندکس اسناد موجود بر اساس پلاک
+      var toAdd = [], toUpdate = [], skipped = 0;
       var existingByPlate = {};
       docs.forEach(function(d) {
         var k = String(d.plate_number || '').trim();
         if (k) existingByPlate[k] = d;
       });
-
-      var seenInFile = {};  // برای جلوگیری از تکرار در خود فایل
+      var seenInFile = {};
 
       rows.forEach(function(r) {
         var customer_name = pick(r, ['نام مشتری','نام مشتري','مشتری','customer','name']).trim();
@@ -479,87 +603,57 @@ async function importExcel(event) {
         var rawStatus     = pick(r, ['وضعیت سند','وضعیت','status']).trim();
 
         if (!customer_name || !bike_name || !plate_number) { skipped++; return; }
-
-        // جلوگیری از تکرار در خود فایل
         if (seenInFile[plate_number]) { skipped++; return; }
         seenInFile[plate_number] = true;
 
         var status = VALID.indexOf(rawStatus) !== -1 ? rawStatus : UNKNOWN;
-
         var ex = existingByPlate[plate_number];
         if (ex) {
-          // آیا اطلاعات فرق دارد؟
           var diff = (ex.customer_name !== customer_name) ||
                      (ex.bike_name !== bike_name) ||
                      ((ex.notes || '') !== notes) ||
                      (ex.status !== status);
           if (diff) {
-            toUpdate.push({
-              id: ex.id,
-              old: ex,
-              neu: {
-                customer_name: customer_name,
-                bike_name: bike_name,
-                notes: notes,
-                status: status
-              }
-            });
+            toUpdate.push({id: ex.id, neu: {customer_name:customer_name, bike_name:bike_name, notes:notes, status:status}});
           }
         } else {
-          toAdd.push({
-            customer_name: customer_name,
-            bike_name: bike_name,
-            plate_number: plate_number,
-            notes: notes,
-            status: status
-          });
+          toAdd.push({customer_name:customer_name, bike_name:bike_name, plate_number:plate_number, notes:notes, status:status});
         }
       });
 
       if (!toAdd.length && !toUpdate.length) {
-        alert('همه سطرها قبلاً موجود بودند و یکسان هستند. هیچ تغییری لازم نیست.\n' +
-              (skipped ? skipped + ' سطر ناقص نادیده گرفته شد.' : ''));
+        alert('همه سطرها یکسان هستند.\n' + (skipped ? skipped + ' سطر ناقص نادیده گرفته شد.' : ''));
         return;
       }
 
-      var msg = '';
-      msg += '📊 خلاصه ورود از اکسل:\n\n';
-      if (toAdd.length) msg += '➕ ' + toAdd.length + ' سند جدید اضافه می‌شود\n';
-      if (toUpdate.length) msg += '🔄 ' + toUpdate.length + ' سند موجود به‌روزرسانی می‌شود\n';
-      if (skipped) msg += '⏭️ ' + skipped + ' سطر ناقص یا تکراری نادیده گرفته شد\n';
-      msg += '\nآیا ادامه می‌دهید؟';
-
+      var msg = '📊 خلاصه:\n\n';
+      if (toAdd.length) msg += '➕ ' + toAdd.length + ' سند جدید\n';
+      if (toUpdate.length) msg += '🔄 ' + toUpdate.length + ' به‌روزرسانی\n';
+      if (skipped) msg += '⏭️ ' + skipped + ' نادیده گرفته شد\n';
+      msg += '\nادامه؟';
       if (!confirm(msg)) return;
 
       var okAdd = 0, okUpd = 0, errCount = 0;
-
-      // افزودن
       if (toAdd.length) {
         var rAdd = await sb.from('documents').insert(toAdd);
-        if (rAdd.error) { alert('خطا در افزودن: ' + rAdd.error.message); errCount++; }
+        if (rAdd.error) { alert('خطا: ' + rAdd.error.message); errCount++; }
         else okAdd = toAdd.length;
       }
-
-      // به‌روزرسانی یکی‌یکی
       for (var i=0; i<toUpdate.length; i++) {
         var u = toUpdate[i];
-        var upd = u.neu;
-        upd.updated_at = new Date().toISOString();
-        var rUpd = await sb.from('documents').update(upd).eq('id', u.id);
+        u.neu.updated_at = new Date().toISOString();
+        var rUpd = await sb.from('documents').update(u.neu).eq('id', u.id);
         if (rUpd.error) errCount++;
         else okUpd++;
       }
-
-      var finalMsg = '✅ انجام شد\n\n➕ ' + okAdd + ' سند جدید\n🔄 ' + okUpd + ' سند به‌روزرسانی';
-      if (errCount) finalMsg += '\n❌ ' + errCount + ' خطا';
-      alert(finalMsg);
-
+      var fm = '✅ انجام شد\n\n➕ ' + okAdd + ' جدید\n🔄 ' + okUpd + ' به‌روزرسانی';
+      if (errCount) fm += '\n❌ ' + errCount + ' خطا';
+      alert(fm);
       await load();
       setTimeout(tryAutoSaveExcel, 800);
-
     } catch (err) {
       console.error(err);
-      alert('خطا در خواندن فایل: ' + err.message);
+      alert('خطا: ' + err.message);
     } finally {
       event.target.value = '';
     }
@@ -567,46 +661,36 @@ async function importExcel(event) {
   reader.readAsArrayBuffer(file);
 }
 
-/* ============================================================
-   📊 اکسل — بخش ۳: اتصال به فایل مرجع روی کامپیوتر
-   (File System Access API — فقط کروم/اِج)
-   ============================================================ */
-
+/* ============ File System Access ============ */
 function isFSASupported() {
   return typeof window.showOpenFilePicker === 'function';
 }
 
 async function linkExcelFile() {
   if (!isFSASupported()) {
-    alert('⚠️ مرورگر شما از این قابلیت پشتیبانی نمی‌کند.\nلطفاً از Google Chrome یا Microsoft Edge استفاده کنید.');
+    alert('⚠️ مرورگر پشتیبانی نمی‌کند.\nلطفاً Chrome یا Edge استفاده کنید.');
     return;
   }
   if (!window.isSecureContext) {
-    alert('⚠️ این قابلیت نیاز به HTTPS دارد (یا localhost).');
+    alert('⚠️ نیاز به HTTPS دارد.');
     return;
   }
-
   try {
     var handles = await window.showOpenFilePicker({
       types: [{
         description: 'فایل اکسل',
-        accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'], 'application/vnd.ms-excel': ['.xls'] }
+        accept: {'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx'],'application/vnd.ms-excel':['.xls']}
       }],
       multiple: false
     });
     excelFileHandle = handles[0];
     autoSaveEnabled = true;
-
-    // تلاش برای ذخیره handle در IndexedDB (برای استفاده بعدی)
     await saveFileHandle(excelFileHandle);
-
     updateFileUI();
-
-    // سوال: از فایل اکسل بخوانیم و به Supabase بفرستیم؟
-    if (confirm('✅ فایل وصل شد.\n\nآیا می‌خواهید همین حالا داده‌های این فایل اکسل را بخوانیم و به سیستم اضافه/به‌روز کنیم؟')) {
+    if (confirm('✅ فایل وصل شد.\n\nآیا همین حالا از فایل بخوانیم و به سیستم اضافه کنیم؟')) {
       await reloadFromExcelFile();
     } else {
-      alert('✅ فایل متصل شد. از این پس، تغییرات به‌طور خودکار در این فایل ذخیره می‌شود.');
+      alert('✅ فایل متصل شد. تغییرات خودکار ذخیره می‌شود.');
     }
   } catch (err) {
     if (err.name !== 'AbortError') {
@@ -621,7 +705,7 @@ function unlinkExcelFile() {
   autoSaveEnabled = false;
   deleteFileHandle();
   updateFileUI();
-  alert('اتصال فایل قطع شد.');
+  alert('اتصال قطع شد.');
 }
 
 function updateFileUI() {
@@ -629,10 +713,9 @@ function updateFileUI() {
   var linkBtn = document.getElementById('linkFileBtn');
   var unlinkBtn = document.getElementById('unlinkFileBtn');
   var reloadBtn = document.getElementById('reloadFileBtn');
-
   if (excelFileHandle) {
     fs.className = 'file-status fs-on';
-    fs.textContent = '✅ متصل: ' + (excelFileHandle.name || 'فایل اکسل');
+    fs.textContent = '✅ ' + (excelFileHandle.name || 'متصل');
     linkBtn.style.display = 'none';
     unlinkBtn.style.display = '';
     reloadBtn.style.display = '';
@@ -645,16 +728,12 @@ function updateFileUI() {
   }
 }
 
-/* ذخیره خودکار در فایل اکسل */
 async function tryAutoSaveExcel() {
   if (!excelFileHandle || !autoSaveEnabled) return;
   if (!isFSASupported()) return;
   try {
-    // درخواست دسترسی (ممکن است مرورگر هر بار سوال کند)
     var perm = await excelFileHandle.queryPermission({mode:'readwrite'});
-    if (perm !== 'granted') {
-      perm = await excelFileHandle.requestPermission({mode:'readwrite'});
-    }
+    if (perm !== 'granted') perm = await excelFileHandle.requestPermission({mode:'readwrite'});
     if (perm !== 'granted') return;
 
     var rows = docsToRows(docs);
@@ -667,24 +746,20 @@ async function tryAutoSaveExcel() {
     var writable = await excelFileHandle.createWritable();
     await writable.write(out);
     await writable.close();
-    console.log('✅ ذخیره خودکار در فایل اکسل انجام شد.');
+    console.log('✅ ذخیره خودکار انجام شد.');
   } catch (err) {
-    console.warn('خطا در ذخیره خودکار اکسل:', err);
+    console.warn('خطا در ذخیره خودکار:', err);
   }
 }
 
-/* خواندن از فایل اکسل متصل */
 async function reloadFromExcelFile() {
   if (!excelFileHandle) { alert('ابتدا فایل را وصل کنید.'); return; }
   try {
     var perm = await excelFileHandle.queryPermission({mode:'read'});
-    if (perm !== 'granted') {
-      perm = await excelFileHandle.requestPermission({mode:'read'});
-    }
+    if (perm !== 'granted') perm = await excelFileHandle.requestPermission({mode:'read'});
     if (perm !== 'granted') return;
 
     var file = await excelFileHandle.getFile();
-    // مثل importExcel عمل کن
     var reader = new FileReader();
     reader.onload = async function(e) {
       try {
@@ -720,23 +795,21 @@ async function reloadFromExcelFile() {
                        (ex.bike_name !== bike_name) ||
                        ((ex.notes || '') !== notes) ||
                        (ex.status !== status);
-            if (diff) {
-              toUpdate.push({id: ex.id, neu: {customer_name: customer_name, bike_name: bike_name, notes: notes, status: status}});
-            }
+            if (diff) toUpdate.push({id: ex.id, neu: {customer_name:customer_name, bike_name:bike_name, notes:notes, status:status}});
           } else {
-            toAdd.push({customer_name: customer_name, bike_name: bike_name, plate_number: plate_number, notes: notes, status: status});
+            toAdd.push({customer_name:customer_name, bike_name:bike_name, plate_number:plate_number, notes:notes, status:status});
           }
         });
 
         if (!toAdd.length && !toUpdate.length) {
-          alert('همه سطرها یکسان هستند. تغییری لازم نیست.');
+          alert('همه سطرها یکسان هستند.');
           return;
         }
 
-        var msg = '📊 خلاصه خواندن از فایل اکسل:\n\n';
-        if (toAdd.length) msg += '➕ ' + toAdd.length + ' سند جدید\n';
+        var msg = '📊 خلاصه:\n\n';
+        if (toAdd.length) msg += '➕ ' + toAdd.length + ' جدید\n';
         if (toUpdate.length) msg += '🔄 ' + toUpdate.length + ' به‌روزرسانی\n';
-        if (skipped) msg += '⏭️ ' + skipped + ' نادیده گرفته شده\n';
+        if (skipped) msg += '⏭️ ' + skipped + ' نادیده\n';
         msg += '\nادامه؟';
         if (!confirm(msg)) return;
 
@@ -752,32 +825,23 @@ async function reloadFromExcelFile() {
           var rU = await sb.from('documents').update(u.neu).eq('id', u.id);
           if (rU.error) errC++; else okUpd++;
         }
-        alert('✅ انجام شد\n➕ ' + okAdd + ' جدید\n🔄 ' + okUpd + ' به‌روزرسانی' + (errC ? '\n❌ ' + errC + ' خطا' : ''));
+        alert('✅ انجام شد\n➕ ' + okAdd + '\n🔄 ' + okUpd + (errC ? '\n❌ ' + errC : ''));
         await load();
-      } catch (err) {
-        alert('خطا: ' + err.message);
-      }
+      } catch (err) { alert('خطا: ' + err.message); }
     };
     reader.readAsArrayBuffer(file);
-  } catch (err) {
-    alert('خطا: ' + err.message);
-  }
+  } catch (err) { alert('خطا: ' + err.message); }
 }
 
-/* ============================================================
-   IndexedDB برای ذخیره handle فایل
-   ============================================================ */
+/* ============ IndexedDB ============ */
 function openDB() {
   return new Promise(function(resolve, reject) {
     var req = indexedDB.open('moto_files', 1);
-    req.onupgradeneeded = function(e) {
-      e.target.result.createObjectStore('handles');
-    };
+    req.onupgradeneeded = function(e) { e.target.result.createObjectStore('handles'); };
     req.onsuccess = function(e) { resolve(e.target.result); };
     req.onerror = function(e) { reject(e.target.error); };
   });
 }
-
 async function saveFileHandle(handle) {
   try {
     var db = await openDB();
@@ -785,7 +849,6 @@ async function saveFileHandle(handle) {
     tx.objectStore('handles').put(handle, 'excel');
   } catch(e) { console.warn(e); }
 }
-
 async function loadFileHandle() {
   try {
     var db = await openDB();
@@ -797,7 +860,6 @@ async function loadFileHandle() {
     });
   } catch(e) { return null; }
 }
-
 async function deleteFileHandle() {
   try {
     var db = await openDB();
@@ -805,41 +867,27 @@ async function deleteFileHandle() {
     tx.objectStore('handles').delete('excel');
   } catch(e) { console.warn(e); }
 }
-
-/* بازیابی handle در شروع */
 async function tryRestoreFileHandle() {
   if (!isFSASupported()) return;
   var h = await loadFileHandle();
   if (h) {
     excelFileHandle = h;
-    // بررسی دسترسی
     try {
       var perm = await h.queryPermission({mode:'readwrite'});
-      if (perm === 'granted') {
-        autoSaveEnabled = true;
-        updateFileUI();
-        console.log('✅ فایل اکسل از قبل وصل است.');
-      } else {
-        updateFileUI();
-      }
-    } catch(e) {
+      if (perm === 'granted') { autoSaveEnabled = true; }
       updateFileUI();
-    }
+    } catch(e) { updateFileUI(); }
   }
 }
 
-/* ============================================================
-   شروع
-   ============================================================ */
+/* ============ شروع ============ */
 updateBar();
 if (sessionStorage.getItem(SESSION) === '1') {
   logged = true;
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('main').style.display = 'block';
   document.getElementById('logoutBtn').style.display = 'block';
-  init().then(function() {
-    tryRestoreFileHandle();
-  });
+  init().then(function() { tryRestoreFileHandle(); });
 }
 </script>
 </body>
