@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>اسناد موتور</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 body{font-family:Tahoma,sans-serif;background:#f0f2f5;margin:0;padding:15px;direction:rtl}
 .login{position:fixed;inset:0;background:linear-gradient(135deg,#3498db,#2c3e50);display:flex;align-items:center;justify-content:center;z-index:99}
@@ -21,7 +20,7 @@ h1{text-align:center;color:#2c3e50;font-size:22px}
 .card{background:#fff;border-radius:10px;padding:18px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
 input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:14px;font-family:inherit;box-sizing:border-box}
-input:focus,select:focus,textarea:focus{outline:none;border-color:#3498db}
+input:focus,select:focus{outline:none;border-color:#3498db}
 input.dup{border-color:#e74c3c;background:#fdecea}
 button{padding:10px 16px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit;margin:2px}
 button:disabled{opacity:0.5;cursor:not-allowed}
@@ -30,8 +29,6 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 .warning{background:#f39c12;color:#fff}
 .danger{background:#e74c3c;color:#fff}
 .gray{background:#7f8c8d;color:#fff}
-.info{background:#16a085;color:#fff}
-.purple{background:#8e44ad;color:#fff}
 .sm{padding:6px 10px;font-size:12px}
 .logout{position:fixed;top:15px;left:15px;background:#e74c3c;color:#fff;padding:8px 14px;font-size:13px;border-radius:8px;z-index:100}
 .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
@@ -51,24 +48,8 @@ td.dup-cell{color:#c0392b;font-weight:bold}
 .num{font-size:24px;font-weight:bold;margin-bottom:5px}
 .lbl{font-size:13px;color:#777}
 .warn{color:#c0392b;font-size:12px;margin-top:6px;display:none}
-.hint{font-size:12px;color:#888;margin-top:8px;line-height:1.7}
-.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.fs-status{font-size:12px;padding:6px 10px;border-radius:6px;display:inline-block;margin-bottom:10px}
-.fs-off{background:#fdecea;color:#c0392b}
-.fs-on{background:#d4edda;color:#155724}
-.log-box{background:#f8f9fa;border-radius:6px;padding:10px;font-size:12px;font-family:Consolas,monospace;max-height:200px;overflow-y:auto;display:none;margin-top:10px;border:1px solid #dee2e6}
-.log-box .ok{color:#27ae60}
-.log-box .upd{color:#f39c12}
-.log-box .skip{color:#95a5a6}
-.log-box .err{color:#e74c3c}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
-.modal-bg.show{display:flex}
-.modal{background:#fff;border-radius:12px;padding:24px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
-.modal h3{margin-bottom:15px;color:#2c3e50;font-size:18px}
-.modal .field{margin-bottom:12px}
-.modal .field label{display:block;font-size:13px;color:#555;margin-bottom:5px}
-.modal .btn-row{display:flex;gap:10px;justify-content:flex-end;margin-top:15px;border-top:1px solid #eee;padding-top:15px}
-.modal .modal-err{color:#c0392b;font-size:12px;margin-top:8px;min-height:16px}
+.hint{font-size:12px;color:#888;margin-top:8px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -98,26 +79,7 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   </div>
 
   <div class="card">
-    <h3 style="margin-bottom:12px;color:#2c3e50">📊 مدیریت اکسل</h3>
-    <div id="fsStatus" class="fs-status fs-off">📁 فایل اکسل مرجع: متصل نیست</div>
-    <div class="tools">
-      <button class="info" onclick="downloadTemplate()">📥 دریافت قالب</button>
-      <button class="primary" onclick="document.getElementById('excelInput').click()">📤 ورود از اکسل</button>
-      <button class="success" onclick="exportExcel()">📥 خروجی (همه)</button>
-      <button class="warning" onclick="exportExcelFiltered()">📥 خروجی (فیلترشده)</button>
-      <button class="gray" id="connectFileBtn" onclick="connectLocalFile()">🔗 اتصال به فایل اکسل</button>
-      <button class="gray" id="syncFileBtn" onclick="syncToLocalFile()" style="display:none">💾 ذخیره فوری</button>
-      <input type="file" id="excelInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(event)">
-    </div>
-    <div class="hint">
-      🔹 <b>ورود اکسل:</b> ستون‌های «نام مشتری، نام موتور، شماره پلاک، توضیحات» — وضعیت خودکار «در حال انجام».<br>
-      🔹 <b>اتصال به فایل اکسل:</b> روی کامپیوتر ثابت، فایل مرجع رو انتخاب کن — خودکار به‌روز میشه (کروم/اِج).
-    </div>
-    <div class="log-box" id="logBox"></div>
-  </div>
-
-  <div class="card">
-    <h3 style="margin-bottom:12px;color:#2c3e50">➕ ثبت سند جدید</h3>
+    <h3>ثبت سند جدید</h3>
     <div class="grid">
       <input type="text" id="cname" placeholder="نام مشتری *">
       <input type="text" id="bname" placeholder="نام موتور *">
@@ -150,87 +112,24 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   </div>
 </div>
 
-<div class="modal-bg" id="editModal">
-  <div class="modal">
-    <h3>✏️ ویرایش سند</h3>
-    <div class="field">
-      <label>نام مشتری *</label>
-      <input type="text" id="edit_cname">
-    </div>
-    <div class="field">
-      <label>نام موتور *</label>
-      <input type="text" id="edit_bname">
-    </div>
-    <div class="field">
-      <label>شماره پلاک *</label>
-      <input type="text" id="edit_plate" oninput="checkEditDup()">
-      <div class="modal-err" id="editDupWarn"></div>
-    </div>
-    <div class="field">
-      <label>توضیحات</label>
-      <textarea id="edit_notes" rows="2"></textarea>
-    </div>
-    <div class="field">
-      <label>وضعیت</label>
-      <select id="edit_status">
-        <option>در حال انجام</option>
-        <option>موجود</option>
-        <option>تحویل شده</option>
-        <option>مشخص نیست</option>
-      </select>
-    </div>
-    <div class="btn-row">
-      <button class="gray" onclick="closeEdit()">انصراف</button>
-      <button class="success" onclick="saveEdit()">ذخیره تغییرات</button>
-    </div>
-  </div>
-</div>
-
 <script>
-/* ============================================
-   تنظیمات
-   ============================================ */
+/* ======================================================
+   ⚠️ توجه: در این URL، حرف m اضافه حذف شده
+   ✅ درست:  glzhxqtgfdwmvpenbod
+   ❌ اشتباه: glzhxqtgfdwmvmpenbod
+   ====================================================== */
 var SUPABASE_URL = 'https://glzhxqtgfdwmvpenbod.supabase.co';
 var SUPABASE_ANON_KEY = 'sb_publishable_6A3Mb9Zk5or9O-gWDyt0UA_uVpsyUhy';
 var APP_PASSWORD = 'moto1404';
-/* ============================================ */
 
 var VALID = ['در حال انجام','موجود','تحویل شده'];
 var UNKNOWN = 'مشخص نیست';
 var SESSION = 'moto_auth';
-var FS_DB = 'moto_fs';
-var FS_STORE = 'handles';
 
 var sb = null;
 var docs = [];
 var online = navigator.onLine;
 var logged = false;
-var fileHandle = null;
-var editingId = null;
-
-function openDB() {
-  return new Promise(function(resolve, reject) {
-    var req = indexedDB.open(FS_DB, 1);
-    req.onupgradeneeded = function(e) { e.target.result.createObjectStore(FS_STORE); };
-    req.onsuccess = function(e) { resolve(e.target.result); };
-    req.onerror = function() { reject(req.error); };
-  });
-}
-async function saveHandle(h) {
-  try {
-    var db = await openDB();
-    var tx = db.transaction(FS_STORE, 'readwrite');
-    tx.objectStore(FS_STORE).put(h, 'file');
-  } catch(e) {}
-}
-async function loadHandle() {
-  try {
-    var db = await openDB();
-    var tx = db.transaction(FS_STORE, 'readonly');
-    var req = tx.objectStore(FS_STORE).get('file');
-    return new Promise(function(resolve) { req.onsuccess = function(){resolve(req.result)}; req.onerror = function(){resolve(null)}; });
-  } catch(e) { return null; }
-}
 
 function doLogin() {
   var p = document.getElementById('pass').value;
@@ -247,6 +146,7 @@ function doLogin() {
     document.getElementById('pass').value = '';
   }
 }
+
 function doLogout() {
   sessionStorage.removeItem(SESSION);
   location.reload();
@@ -257,12 +157,12 @@ async function init() {
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     await load();
     sb.channel('ch').on('postgres_changes', {event:'*', schema:'public', table:'documents'}, function(){ load(); }).subscribe();
-    await restoreFileHandle();
   } catch(err) {
     console.error(err);
     alert('خطا در اتصال: ' + err.message);
   }
 }
+
 async function load() {
   var r = await sb.from('documents').select('*').order('created_at', {ascending:false});
   if (r.error) { console.error(r.error); alert('خطا: ' + r.error.message); return; }
@@ -283,11 +183,13 @@ window.addEventListener('offline', updateBar);
 function jdate(iso) {
   try { return new Date(iso).toLocaleDateString('fa-IR'); } catch(e) { return '-'; }
 }
+
 function esc(s) {
   return String(s || '').replace(/[&<>"']/g, function(c) {
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
   });
 }
+
 function isDup(plate, ex) {
   var p = String(plate || '').trim();
   if (!p) return false;
@@ -296,13 +198,7 @@ function isDup(plate, ex) {
   }
   return false;
 }
-function findDocByPlate(plate) {
-  var p = String(plate || '').trim();
-  for (var i=0; i<docs.length; i++) {
-    if (String(docs[i].plate_number).trim() === p) return docs[i];
-  }
-  return null;
-}
+
 function checkDup() {
   var p = document.getElementById('plate').value.trim();
   var w = document.getElementById('dupWarn');
@@ -314,21 +210,6 @@ function checkDup() {
     inp.classList.remove('dup');
     w.style.display = 'none';
   }
-}
-
-function log(msg, type) {
-  var box = document.getElementById('logBox');
-  box.style.display = 'block';
-  var line = document.createElement('div');
-  line.className = type || '';
-  line.textContent = msg;
-  box.appendChild(line);
-  box.scrollTop = box.scrollHeight;
-}
-function clearLog() {
-  var box = document.getElementById('logBox');
-  box.innerHTML = '';
-  box.style.display = 'none';
 }
 
 async function addDoc() {
@@ -348,58 +229,6 @@ async function addDoc() {
   checkDup();
 }
 
-function openEdit(id) {
-  if (!online) { alert('🔴 ویرایش فقط آنلاین'); return; }
-  var d = null;
-  for (var i=0; i<docs.length; i++) if (docs[i].id === id) d = docs[i];
-  if (!d) return;
-  editingId = id;
-  document.getElementById('edit_cname').value = d.customer_name;
-  document.getElementById('edit_bname').value = d.bike_name;
-  document.getElementById('edit_plate').value = d.plate_number;
-  document.getElementById('edit_notes').value = d.notes || '';
-  document.getElementById('edit_status').value = d.status;
-  document.getElementById('editDupWarn').textContent = '';
-  document.getElementById('editModal').classList.add('show');
-}
-function closeEdit() {
-  editingId = null;
-  document.getElementById('editModal').classList.remove('show');
-}
-function checkEditDup() {
-  var p = document.getElementById('edit_plate').value.trim();
-  var w = document.getElementById('editDupWarn');
-  if (p && isDup(p, editingId)) {
-    w.textContent = '⚠️ این پلاک قبلاً برای سند دیگری ثبت شده';
-    w.style.color = '#c0392b';
-  } else {
-    w.textContent = '';
-  }
-}
-async function saveEdit() {
-  if (!online) { alert('🔴 ویرایش فقط آنلاین'); return; }
-  if (!editingId) return;
-  var cn = document.getElementById('edit_cname').value.trim();
-  var bn = document.getElementById('edit_bname').value.trim();
-  var pl = document.getElementById('edit_plate').value.trim();
-  var nt = document.getElementById('edit_notes').value.trim();
-  var st = document.getElementById('edit_status').value;
-  if (!cn || !bn || !pl) { alert('همه فیلدهای اجباری را پر کنید'); return; }
-  if (isDup(pl, editingId)) {
-    if (!confirm('⚠️ پلاک تکراری است. باز هم ذخیره شود؟')) return;
-  }
-  if (VALID.indexOf(st) === -1 && st !== UNKNOWN) st = UNKNOWN;
-  var r = await sb.from('documents').update({
-    customer_name: cn, bike_name: bn, plate_number: pl, notes: nt, status: st,
-    updated_at: new Date().toISOString()
-  }).eq('id', editingId);
-  if (r.error) { alert('خطا: ' + r.error.message); return; }
-  closeEdit();
-  await load();
-  await autoSyncFile();
-  log('✏️ سند ویرایش شد: ' + cn + ' | پلاک ' + pl, 'upd');
-}
-
 async function changeStatus(id, ns) {
   if (!online) { alert('آفلاین - ممکن نیست'); return; }
   var d = null;
@@ -415,7 +244,6 @@ async function changeStatus(id, ns) {
   if (!confirm('تغییر به ' + ns + '؟')) return;
   var r = await sb.from('documents').update({status:ns, updated_at:new Date().toISOString()}).eq('id', id);
   if (r.error) alert('خطا: ' + r.error.message);
-  else await autoSyncFile();
 }
 
 async function delDoc(id) {
@@ -423,27 +251,29 @@ async function delDoc(id) {
   if (!confirm('حذف شود؟')) return;
   var r = await sb.from('documents').delete().eq('id', id);
   if (r.error) alert('خطا: ' + r.error.message);
-  else await autoSyncFile();
 }
 
 function badge(s) {
   var c = {'در حال انجام':'bp','موجود':'ba','تحویل شده':'bd','مشخص نیست':'bu'}[s] || 'bu';
   return '<span class="badge ' + c + '">' + s + '</span>';
 }
+
 function actions(d) {
   var h = '';
   var dis = online ? '' : 'disabled';
-  h += '<button class="sm purple" ' + dis + ' onclick="openEdit(\'' + d.id + '\')" title="ویرایش">✏️</button>';
   if (d.status === 'در حال انجام') {
-    h += ' <button class="sm success" ' + dis + ' onclick="changeStatus(\'' + d.id + '\',\'موجود\')">موجود</button>';
+    h += '<button class="sm success" ' + dis + ' onclick="changeStatus(\'' + d.id + '\',\'موجود\')">موجود</button>';
   } else if (d.status === 'موجود') {
-    h += ' <button class="sm warning" ' + dis + ' onclick="changeStatus(\'' + d.id + '\',\'تحویل شده\')">تحویل</button>';
+    h += '<button class="sm warning" ' + dis + ' onclick="changeStatus(\'' + d.id + '\',\'تحویل شده\')">تحویل</button>';
   } else if (d.status === 'مشخص نیست') {
-    h += ' <button class="sm success" ' + dis + ' onclick="changeStatus(\'' + d.id + '\',\'در حال انجام\')">در حال انجام</button>';
+    h += '<button class="sm success" ' + dis + ' onclick="changeStatus(\'' + d.id + '\',\'در حال انجام\')">در حال انجام</button>';
+  } else {
+    h += '<span style="color:#27ae60;font-size:12px">تکمیل</span>';
   }
   h += ' <button class="sm danger" ' + dis + ' onclick="delDoc(\'' + d.id + '\')">حذف</button>';
   return h;
 }
+
 function filtered() {
   var s = document.getElementById('search').value.trim().toLowerCase();
   var f = document.getElementById('fstat').value;
@@ -453,6 +283,7 @@ function filtered() {
     return ms && mf;
   });
 }
+
 function plateCount() {
   var m = {};
   docs.forEach(function(d) {
@@ -461,6 +292,7 @@ function plateCount() {
   });
   return m;
 }
+
 function render() {
   if (!logged) return;
   var list = filtered();
@@ -490,220 +322,7 @@ function render() {
   }).join('');
 }
 
-function downloadTemplate() {
-  var data = [
-    {'نام مشتری':'علی رضایی','نام موتور':'هوندا ۱۲۵','شماره پلاک':'12345','توضیحات':''},
-    {'نام مشتری':'محمد احمدی','نام موتور':'آپاچی ۱۸۰','شماره پلاک':'67890','توضیحات':''}
-  ];
-  var ws = XLSX.utils.json_to_sheet(data, {header:['نام مشتری','نام موتور','شماره پلاک','توضیحات']});
-  ws['!cols'] = [{wch:20},{wch:18},{wch:20},{wch:30}];
-  var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'قالب');
-  XLSX.writeFile(wb, 'قالب-اسناد.xlsx');
-}
-
-async function importExcel(event) {
-  if (!online) { alert('ورود اکسل فقط آنلاین'); event.target.value = ''; return; }
-  var file = event.target.files[0];
-  if (!file) return;
-  clearLog();
-  log('🔄 پردازش فایل: ' + file.name, '');
-  log('⏳ خواندن...', '');
-
-  var reader = new FileReader();
-  reader.onload = async function(e) {
-    try {
-      var data = new Uint8Array(e.target.result);
-      var wb = XLSX.read(data, {type:'array'});
-      var ws = wb.Sheets[wb.SheetNames[0]];
-      var rows = XLSX.utils.sheet_to_json(ws, {defval:''});
-      if (!rows.length) { alert('فایل خالی است.'); clearLog(); return; }
-      log('📊 ' + rows.length + ' سطر پیدا شد', '');
-
-      var toAdd = [];
-      var toUpdate = [];
-      var skipped = 0;
-
-      rows.forEach(function(r) {
-        var cn = pick(r, ['نام مشتری','نام مشتري','مشتری','customer','name']).trim();
-        var bn = pick(r, ['نام موتور','موتور','bike','motor']).trim();
-        var pl = pick(r, ['شماره پلاک','پلاک','plate']).trim();
-        var nt = pick(r, ['توضیحات','note','notes','description']).trim();
-        if (!cn || !bn || !pl) { skipped++; return; }
-        var existing = findDocByPlate(pl);
-        if (!existing) {
-          toAdd.push({customer_name:cn, bike_name:bn, plate_number:pl, notes:nt, status:'در حال انجام'});
-          log('➕ جدید: ' + cn + ' | پلاک ' + pl, 'ok');
-        } else {
-          var changes = {};
-          if (existing.customer_name !== cn) changes.customer_name = cn;
-          if (existing.bike_name !== bn) changes.bike_name = bn;
-          if ((existing.notes || '') !== nt) changes.notes = nt;
-          if (Object.keys(changes).length > 0) {
-            changes.updated_at = new Date().toISOString();
-            toUpdate.push({id: existing.id, changes: changes, plate: pl, name: cn});
-            log('🔄 به‌روز: ' + cn + ' | پلاک ' + pl + ' | ' + Object.keys(changes).join(', '), 'upd');
-          } else {
-            log('⏭ نادیده: ' + cn + ' | پلاک ' + pl, 'skip');
-          }
-        }
-      });
-
-      log('', '');
-      log('📊 خلاصه:', '');
-      log('   ➕ جدید: ' + toAdd.length, 'ok');
-      log('   🔄 به‌روز: ' + toUpdate.length, 'upd');
-      log('   ⏭ ناقص: ' + skipped, 'skip');
-
-      if (!toAdd.length && !toUpdate.length) {
-        log('✅ تغییری نیست.', 'ok');
-        alert('هیچ سند جدید یا تغییری نیست.');
-        return;
-      }
-      if (!confirm('➕ ' + toAdd.length + ' سند جدید\n🔄 ' + toUpdate.length + ' سند به‌روز\n\nادامه؟')) {
-        log('❌ لغو شد.', 'err');
-        return;
-      }
-      if (toAdd.length) {
-        var r1 = await sb.from('documents').insert(toAdd);
-        if (r1.error) log('❌ خطا: ' + r1.error.message, 'err');
-        else log('✅ ' + toAdd.length + ' سند جدید اضافه شد', 'ok');
-      }
-      if (toUpdate.length) {
-        for (var i = 0; i < toUpdate.length; i++) {
-          var u = toUpdate[i];
-          var r2 = await sb.from('documents').update(u.changes).eq('id', u.id);
-          if (r2.error) log('❌ خطا در ' + u.plate + ': ' + r2.error.message, 'err');
-        }
-        log('✅ ' + toUpdate.length + ' سند به‌روز شد', 'ok');
-      }
-      log('🎉 عملیات کامل شد!', 'ok');
-      await load();
-      await autoSyncFile();
-    } catch (err) {
-      log('❌ خطا: ' + err.message, 'err');
-      alert('خطا: ' + err.message);
-    } finally {
-      event.target.value = '';
-    }
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-function pick(obj, keys) {
-  for (var i = 0; i < keys.length; i++) {
-    if (obj[keys[i]] !== undefined && obj[keys[i]] !== null && obj[keys[i]] !== '') return String(obj[keys[i]]);
-  }
-  var norm = function(s) { return String(s).replace(/[\s\u200c\u200f]/g, '').toLowerCase(); };
-  var targets = keys.map(norm);
-  for (var key in obj) {
-    if (targets.indexOf(norm(key)) !== -1) return String(obj[key]);
-  }
-  return '';
-}
-
-function docsToRows(list) {
-  return list.map(function(d, i) {
-    return {
-      'ردیف': i + 1,
-      'نام مشتری': d.customer_name,
-      'نام موتور': d.bike_name,
-      'شماره پلاک': d.plate_number,
-      'وضعیت سند': d.status,
-      'تاریخ ثبت': jdate(d.created_at),
-      'آخرین تغییر': jdate(d.updated_at),
-      'توضیحات': d.notes || ''
-    };
-  });
-}
-function makeWorkbook(list) {
-  var ws = XLSX.utils.json_to_sheet(docsToRows(list));
-  ws['!cols'] = [{wch:6},{wch:20},{wch:18},{wch:20},{wch:14},{wch:12},{wch:12},{wch:30}];
-  var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'اسناد');
-  return wb;
-}
-function exportExcel() {
-  if (!docs.length) { alert('لیست خالی است.'); return; }
-  XLSX.writeFile(makeWorkbook(docs), 'اسناد-' + new Date().toISOString().slice(0,10) + '.xlsx');
-}
-function exportExcelFiltered() {
-  var list = filtered();
-  if (!list.length) { alert('لیست فیلترشده خالی است.'); return; }
-  XLSX.writeFile(makeWorkbook(list), 'اسناد-فیلترشده-' + new Date().toISOString().slice(0,10) + '.xlsx');
-}
-
-function updateFsStatus() {
-  var el = document.getElementById('fsStatus');
-  var connectBtn = document.getElementById('connectFileBtn');
-  var syncBtn = document.getElementById('syncFileBtn');
-  if (fileHandle) {
-    el.className = 'fs-status fs-on';
-    el.textContent = '📁 فایل اکسل مرجع: ' + fileHandle.name + ' ✅ (ذخیره خودکار فعال)';
-    connectBtn.textContent = '🔄 تغییر فایل';
-    syncBtn.style.display = 'inline-block';
-  } else {
-    el.className = 'fs-status fs-off';
-    el.textContent = '📁 فایل اکسل مرجع: متصل نیست';
-    connectBtn.textContent = '🔗 اتصال به فایل اکسل';
-    syncBtn.style.display = 'none';
-  }
-}
-async function connectLocalFile() {
-  if (!('showSaveFilePicker' in window)) {
-    alert('این قابلیت فقط در Chrome یا Edge کار می‌کند.\nاز دکمه «خروجی» استفاده کن.');
-    return;
-  }
-  try {
-    var handle = await window.showSaveFilePicker({
-      suggestedName: 'documents.xlsx',
-      types: [{description:'Excel', accept:{'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':['.xlsx']}}]
-    });
-    fileHandle = handle;
-    await saveHandle(handle);
-    updateFsStatus();
-    await syncToLocalFile();
-    log('✅ فایل ' + handle.name + ' متصل شد.', 'ok');
-  } catch (e) {
-    if (e.name !== 'AbortError') alert('خطا: ' + e.message);
-  }
-}
-async function restoreFileHandle() {
-  var handle = await loadHandle();
-  if (!handle) { updateFsStatus(); return; }
-  try {
-    var perm = await handle.queryPermission({mode:'readwrite'});
-    if (perm === 'granted') { fileHandle = handle; updateFsStatus(); return; }
-    var req = await handle.requestPermission({mode:'readwrite'});
-    if (req === 'granted') { fileHandle = handle; updateFsStatus(); }
-    else updateFsStatus();
-  } catch(e) { updateFsStatus(); }
-}
-async function writeToFile() {
-  if (!fileHandle) return false;
-  try {
-    var wb = makeWorkbook(docs);
-    var data = XLSX.write(wb, {bookType:'xlsx', type:'array'});
-    var writable = await fileHandle.createWritable();
-    await writable.write(data);
-    await writable.close();
-    return true;
-  } catch (e) { console.error(e); return false; }
-}
-async function syncToLocalFile() {
-  if (!fileHandle) { alert('ابتدا به فایل اکسل متصل شوید.'); return; }
-  var ok = await writeToFile();
-  if (ok) log('💾 فایل اکسل ذخیره شد.', 'ok');
-  else log('❌ خطا در ذخیره.', 'err');
-}
-async function autoSyncFile() {
-  if (!fileHandle) return;
-  var ok = await writeToFile();
-  if (ok) log('💾 فایل اکسل خودکار به‌روز شد.', 'ok');
-}
-
 updateBar();
-updateFsStatus();
 if (sessionStorage.getItem(SESSION) === '1') {
   logged = true;
   document.getElementById('loginScreen').style.display = 'none';
