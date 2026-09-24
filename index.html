@@ -23,7 +23,6 @@ h1{text-align:center;color:#2c3e50;font-size:20px;margin:8px 0 15px}
 .bar{text-align:center;padding:8px;border-radius:8px;margin-bottom:12px;font-size:13px;font-weight:bold}
 .on{background:#d4edda;color:#155724}
 .off{background:#f8d7da;color:#721c24}
-.sync{background:#fff3cd;color:#856404}
 .card{background:#fff;border-radius:10px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
 .card h3{margin:0 0 12px;font-size:16px;color:#2c3e50}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
@@ -95,11 +94,10 @@ td.dup-cell{color:#c0392b;font-weight:bold}
 .history-item .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:5px}
 .history-item .action{font-weight:bold;color:#2c3e50;font-size:13px}
 .history-item .date{color:#888;font-size:11px}
-.history-item .user{color:#8e44ad;font-size:11px}
+.history-item .user{color:#8e44ad;font-size:11px;margin-bottom:4px}
 .history-item .changes{color:#555;font-size:12px;line-height:1.7}
 .history-item .changes .old{color:#c0392b;text-decoration:line-through}
 .history-item .changes .new{color:#27ae60;font-weight:bold}
-.history-item .undo-btn{margin-top:8px;padding:5px 10px;font-size:11px;background:#f39c12;color:#fff;border:none;border-radius:4px;cursor:pointer}
 
 /* Toast */
 #toastContainer{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
@@ -119,7 +117,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
 .confirm-box .actions{display:flex;gap:10px}
 .confirm-box .actions button{flex:1;padding:11px;font-size:14px}
 
-/* Backup */
 .backup-item{display:flex;justify-content:space-between;align-items:center;padding:8px;background:#f8f9fa;border-radius:6px;margin-bottom:6px;font-size:12px}
 .backup-item button{padding:4px 8px;font-size:11px}
 
@@ -162,10 +159,8 @@ td.dup-cell{color:#c0392b;font-weight:bold}
 </head>
 <body>
 
-<!-- Toast -->
 <div id="toastContainer"></div>
 
-<!-- Confirm Modal -->
 <div class="confirm-overlay" id="confirmModal">
   <div class="confirm-box">
     <h3 id="confirmTitle">تأیید</h3>
@@ -177,7 +172,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   </div>
 </div>
 
-<!-- Login -->
 <div class="login" id="loginScreen">
   <div class="login-box">
     <h2>ورود به سیستم</h2>
@@ -209,7 +203,7 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   <div class="card">
     <h3>📊 اکسل</h3>
     <div class="tools">
-      <button class="primary" onclick="document.getElementById('excelInput').click()">📥 ورود</button>
+      <button class="primary" id="importBtn" onclick="document.getElementById('excelInput').click()">📥 ورود</button>
       <button class="success" onclick="exportExcel('all')">📤 خروجی همه</button>
       <button class="warning" onclick="exportExcel('filtered')">📤 خروجی فیلتر</button>
       <button class="gray" onclick="downloadTemplate()">📄 قالب</button>
@@ -224,7 +218,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
       <div class="tools">
         <button class="primary" id="linkFileBtn" onclick="linkExcelFile()">📎 اتصال</button>
         <button class="success" id="unlinkFileBtn" style="display:none" onclick="unlinkExcelFile()">🔓 لغو</button>
-        <button class="gray" id="reloadFileBtn" style="display:none" onclick="reloadFromExcelFile()">🔄 خواندن مجدد</button>
       </div>
     </div>
   </div>
@@ -242,7 +235,7 @@ td.dup-cell{color:#c0392b;font-weight:bold}
 
   <div class="card">
     <h3>⚙️ تنظیمات</h3>
-    <label class="settings-row">
+    <label class="settings-row" id="deleteSettingRow">
       <input type="checkbox" id="showDeleteToggle" onchange="toggleDeleteVisibility()">
       <span>نمایش دکمه حذف (🗑️) در جدول</span>
     </label>
@@ -269,7 +262,7 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   <div class="card">
     <div class="filters">
       <input type="text" id="search" placeholder="🔍 جستجو..." oninput="debounceSearch()">
-      <select id="fstat" onchange="render()">
+      <select id="fstat" onchange="changeFilter()">
         <option value="">همه وضعیت‌ها</option>
         <option>در حال انجام</option>
         <option>موجود</option>
@@ -296,7 +289,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   </div>
 </div>
 
-<!-- مودال ویرایش + تاریخچه -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <h3>✏️ ویرایش سند</h3>
@@ -337,7 +329,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   </div>
 </div>
 
-<!-- مودال بازیابی رمز -->
 <div class="modal-overlay" id="resetModal">
   <div class="modal">
     <h3>🔑 بازیابی رمز عبور</h3>
@@ -352,7 +343,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   </div>
 </div>
 
-<!-- مودال مدیریت کاربران -->
 <div class="modal-overlay" id="usersModal">
   <div class="modal">
     <h3>👥 مدیریت کاربران</h3>
@@ -365,7 +355,6 @@ td.dup-cell{color:#c0392b;font-weight:bold}
   </div>
 </div>
 
-<!-- مودال لاگ کاربران -->
 <div class="modal-overlay" id="auditModal">
   <div class="modal">
     <h3>📜 لاگ فعالیت کاربران</h3>
@@ -472,11 +461,7 @@ async function doLogin() {
   sessionStorage.setItem('moto_auth', '1');
   logged = true;
   e.textContent = '';
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('main').style.display = 'block';
-  document.getElementById('logoutBtn').style.display = 'block';
-  document.getElementById('userInfo').style.display = 'block';
-  document.getElementById('userInfo').textContent = currentUser.email + ' (' + roleLabel(currentRole) + ')';
+  showMainUI();
   init();
 }
 
@@ -485,16 +470,29 @@ function roleLabel(r) {
 }
 
 async function loadProfile() {
+  currentRole = 'viewer';
   try {
     var r = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
     if (!r.error && r.data) {
       currentRole = r.data.role || 'viewer';
     }
-  } catch(e) { currentRole = 'viewer'; }
+  } catch(e) {
+    console.warn('loadProfile error', e);
+    currentRole = 'viewer';
+  }
+}
+
+function showMainUI() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+  document.getElementById('logoutBtn').style.display = 'block';
+  var ui = document.getElementById('userInfo');
+  ui.style.display = 'block';
+  ui.textContent = currentUser.email + ' (' + roleLabel(currentRole) + ')';
 }
 
 async function doLogout() {
-  await sb.auth.signOut();
+  try { await sb.auth.signOut(); } catch(e) {}
   sessionStorage.removeItem('moto_auth');
   location.reload();
 }
@@ -506,15 +504,25 @@ async function init() {
   // نمایش/مخفی بر اساس نقش
   if (currentRole === 'admin') {
     document.getElementById('adminCard').style.display = '';
+    document.getElementById('deleteSettingRow').style.display = '';
+  } else {
+    document.getElementById('adminCard').style.display = 'none';
+    document.getElementById('deleteSettingRow').style.display = 'none';
   }
+
   if (currentRole === 'viewer') {
     document.getElementById('addCard').style.display = 'none';
+    document.getElementById('importBtn').style.display = 'none';
+    document.getElementById('linkFileBtn').style.display = 'none';
+  } else {
+    document.getElementById('addCard').style.display = '';
+    document.getElementById('importBtn').style.display = '';
+    document.getElementById('linkFileBtn').style.display = '';
   }
 
   await load();
   sb.channel('ch').on('postgres_changes', {event:'*', schema:'public', table:'documents'}, function(){ load(); }).subscribe();
 
-  // بازیابی Session
   sb.auth.onAuthStateChange(function(event, session) {
     if (event === 'SIGNED_OUT') { sessionStorage.removeItem('moto_auth'); location.reload(); }
   });
@@ -526,15 +534,18 @@ async function init() {
 /* ============ بارگذاری ============ */
 async function load() {
   if (!online) {
-    // آفلاین: از IndexedDB
     var cached = await getCachedDocs();
-    if (cached && cached.length) { docs = cached; render(); toast('حالت آفلاین - داده‌های محلی', 'warning'); }
+    if (cached && cached.length) { docs = cached; render(); toast('حالت آفلاین', 'warning'); }
     return;
   }
 
   var q = sb.from('documents').select('*', {count:'exact'}).order('created_at', {ascending:false});
-
   if (!showDeleted) q = q.is('deleted_at', null);
+
+  var s = document.getElementById('search').value.trim();
+  var f = document.getElementById('fstat').value;
+  if (s) q = q.or('customer_name.ilike.%' + s + '%,bike_name.ilike.%' + s + '%,plate_number.ilike.%' + s + '%');
+  if (f) q = q.eq('status', f);
 
   var from = currentPage * pageSize;
   var to = from + pageSize - 1;
@@ -544,14 +555,10 @@ async function load() {
   if (r.error) { toast('خطا: ' + r.error.message, 'error'); return; }
   docs = r.data || [];
   totalCount = r.count || 0;
-
-  // ذخیره برای آفلاین
   await cacheDocs(docs);
-
   render();
 }
 
-/* ============ IndexedDB Cache ============ */
 function openDB() {
   return new Promise(function(resolve, reject) {
     var req = indexedDB.open('moto_files', 2);
@@ -559,7 +566,6 @@ function openDB() {
       var db = e.target.result;
       if (!db.objectStoreNames.contains('handles')) db.createObjectStore('handles');
       if (!db.objectStoreNames.contains('cache')) db.createObjectStore('cache');
-      if (!db.objectStoreNames.contains('pending')) db.createObjectStore('pending', {autoIncrement:true});
     };
     req.onsuccess = function(e) { resolve(e.target.result); };
     req.onerror = function(e) { reject(e.target.error); };
@@ -592,17 +598,9 @@ async function logHistory(documentId, action, oldData, newData) {
       user_email: currentUser ? currentUser.email : null,
       user_role: currentRole
     }]);
-    if (r.error) {
-      console.warn('خطا در تاریخچه:', r.error.message);
-      toast('⚠️ تاریخچه ثبت نشد: ' + r.error.message, 'warning');
-      return false;
-    }
+    if (r.error) { console.warn('تاریخچه:', r.error.message); return false; }
     return true;
-  } catch(e) {
-    console.warn(e);
-    toast('⚠️ خطا در تاریخچه', 'warning');
-    return false;
-  }
+  } catch(e) { console.warn(e); return false; }
 }
 
 /* ============ وضعیت ============ */
@@ -611,9 +609,9 @@ function updateBar() {
   online = navigator.onLine;
   b.className = 'bar ' + (online ? 'on' : 'off');
   b.textContent = online ? '🟢 آنلاین' : '🔴 آفلاین - فقط مشاهده';
-  render();
+  if (logged) render();
 }
-window.addEventListener('online', function(){ updateBar(); syncPending(); });
+window.addEventListener('online', updateBar);
 window.addEventListener('offline', updateBar);
 
 function jdate(iso) {
@@ -648,14 +646,14 @@ function checkDup() {
 
 /* ============ ثبت ============ */
 async function addDoc() {
-  if (!online) { toast('آفلاین - ثبت ممکن نیست', 'error'); return; }
+  if (!online) { toast('آفلاین', 'error'); return; }
   if (currentRole === 'viewer') { toast('دسترسی ندارید', 'error'); return; }
 
   var cn = document.getElementById('cname').value.trim();
   var bn = document.getElementById('bname').value.trim();
   var pl = document.getElementById('plate').value.trim();
   var nt = document.getElementById('notes').value.trim();
-  if (!cn || !bn || !pl) { toast('همه فیلدهای اجباری را پر کنید', 'warning'); return; }
+  if (!cn || !bn || !pl) { toast('همه فیلدهای اجباری', 'warning'); return; }
 
   if (isDup(pl)) {
     var ok = await showConfirm('⚠️ پلاک تکراری', 'این پلاک قبلاً ثبت شده. ادامه؟', 'warning');
@@ -664,7 +662,7 @@ async function addDoc() {
 
   var newDoc = {
     customer_name: cn, bike_name: bn, plate_number: pl, notes: nt,
-    status: 'در حال انجام', created_by: currentUser.email, updated_by: currentUser.email
+    status: 'در حال انجام', created_by: currentUser.email, updated_by: currentUser.email, version: 1
   };
   var r = await sb.from('documents').insert([newDoc]).select().single();
   if (r.error) { toast('خطا: ' + r.error.message, 'error'); return; }
@@ -702,7 +700,6 @@ async function changeStatus(id, ns) {
   }).eq('id', id).eq('version', d.version || 1);
 
   if (r.error) { toast('خطا: ' + r.error.message, 'error'); return; }
-  if (r.count === 0) { toast('⚠️ سند توسط کاربر دیگری تغییر کرده. صفحه رفرش شود.', 'warning'); load(); return; }
 
   await logHistory(id, 'تغییر وضعیت', {status: oldStatus}, {status: ns});
   await audit('status_change', 'documents', id, {from: oldStatus, to: ns});
@@ -713,13 +710,13 @@ async function changeStatus(id, ns) {
 /* ============ حذف (Soft Delete) ============ */
 async function delDoc(id) {
   if (!online) { toast('آفلاین', 'error'); return; }
-  if (currentRole !== 'admin') { toast('فقط مدیر می‌تواند حذف کند', 'error'); return; }
+  if (currentRole !== 'admin') { toast('فقط مدیر', 'error'); return; }
 
   var d = null;
   for (var i=0; i<docs.length; i++) if (docs[i].id === id) d = docs[i];
   if (!d) return;
 
-  var ok = await showConfirm('🗑️ حذف سند', 'آیا از حذف «' + d.customer_name + ' - ' + d.plate_number + '» مطمئنید؟\n(قابل بازیابی توسط مدیر)', 'danger');
+  var ok = await showConfirm('🗑️ حذف سند', 'آیا از حذف «' + d.customer_name + ' - ' + d.plate_number + '» مطمئنید؟', 'danger');
   if (!ok) return;
 
   var r = await sb.from('documents').update({
@@ -732,9 +729,8 @@ async function delDoc(id) {
 
   await logHistory(id, 'حذف', {status: d.status, customer: d.customer_name, plate: d.plate_number}, null);
   await audit('delete', 'documents', id, {plate: d.plate_number});
-  toast('🗑️ سند حذف شد (قابل بازیابی)', 'success');
+  toast('🗑️ سند حذف شد', 'success');
   await load();
-  setTimeout(tryAutoSaveExcel, 800);
 }
 
 /* ============ بازیابی ============ */
@@ -810,10 +806,9 @@ async function saveEdit() {
   var r = await sb.from('documents').update(Object.assign({}, newData, {
     updated_at: new Date().toISOString(),
     version: (old.version || 1) + 1
-  })).eq('id', id).eq('version', old.version || 1);
+  })).eq('id', id);
 
   if (r.error) { toast('خطا: ' + r.error.message, 'error'); return; }
-  if (r.count === 0) { toast('⚠️ سند تغییر کرده. رفرش کنید.', 'warning'); load(); return; }
 
   var changes = {};
   var changed = false;
@@ -864,7 +859,7 @@ async function loadHistory(docId) {
     return;
   }
 
-  container.innerHTML = list.map(function(h, idx) {
+  container.innerHTML = list.map(function(h) {
     var cls = 'history-item';
     var icon = '📝';
     if (h.action === 'ثبت') { cls += ' create'; icon = '➕'; }
@@ -876,7 +871,7 @@ async function loadHistory(docId) {
     var changesHtml = '';
     if (h.action === 'ثبت' && h.new_data) {
       var nd = h.new_data;
-      changesHtml = 'ثبت اولیه: ' + esc(nd.customer_name || '') + ' - ' + esc(nd.bike_name || '') + ' - پلاک ' + esc(nd.plate_number || '');
+      changesHtml = 'ثبت: ' + esc(nd.customer_name || '') + ' - ' + esc(nd.bike_name || '') + ' - پلاک ' + esc(nd.plate_number || '');
     } else if (h.action === 'تغییر وضعیت' && h.old_data && h.new_data) {
       changesHtml = 'وضعیت: <span class="old">' + esc(h.old_data.status || '') + '</span> ← <span class="new">' + esc(h.new_data.status || '') + '</span>';
     } else if (h.action === 'ویرایش' && h.old_data) {
@@ -891,11 +886,6 @@ async function loadHistory(docId) {
       changesHtml = 'حذف: ' + esc(h.old_data.customer || '') + ' - پلاک ' + esc(h.old_data.plate || '');
     } else if (h.action === 'بازیابی') {
       changesHtml = 'سند بازیابی شد';
-    }
-
-    var undoBtn = '';
-    if (idx === 0 && currentRole === 'admin' && h.action !== 'حذف') {
-      // آخرین تغییر - فقط اگر حذف نبود
     }
 
     return '<div class="' + cls + '">' +
@@ -982,39 +972,19 @@ function debounceSearch() {
   if (searchTimer) clearTimeout(searchTimer);
   searchTimer = setTimeout(function(){ currentPage = 0; load(); }, 500);
 }
-
-async function serverSearch() {
-  var s = document.getElementById('search').value.trim();
-  var f = document.getElementById('fstat').value;
-  if (!s && !f) return load();
-
-  var q = sb.from('documents').select('*', {count:'exact'}).order('created_at', {ascending:false});
-  if (!showDeleted) q = q.is('deleted_at', null);
-  if (s) q = q.or('customer_name.ilike.%' + s + '%,bike_name.ilike.%' + s + '%,plate_number.ilike.%' + s + '%');
-  if (f) q = q.eq('status', f);
-
-  var from = currentPage * pageSize;
-  var to = from + pageSize - 1;
-  q = q.range(from, to);
-
-  var r = await q;
-  if (r.error) { toast('خطا: ' + r.error.message, 'error'); return; }
-  docs = r.data || [];
-  totalCount = r.count || 0;
-  render();
-}
+function changeFilter() { currentPage = 0; load(); }
 
 function changePage(dir) {
   var maxPage = Math.ceil(totalCount / pageSize) - 1;
   var newPage = currentPage + dir;
   if (newPage < 0 || newPage > maxPage) return;
   currentPage = newPage;
-  serverSearch();
+  load();
 }
 function changePageSize() {
   pageSize = parseInt(document.getElementById('pageSize').value);
   currentPage = 0;
-  serverSearch();
+  load();
 }
 
 function plateCount() {
@@ -1040,7 +1010,7 @@ function render() {
   } else {
     tb.innerHTML = docs.map(function(d, i) {
       var dup = pc[String(d.plate_number || '').trim()] > 1 && !d.deleted_at;
-      var rowCls = dup ? 'dup-row' : (d.deleted_at ? '' : '');
+      var rowCls = dup ? 'dup-row' : '';
       var rowStyle = d.deleted_at ? 'style="opacity:0.55;background:#f8f8f8"' : '';
       return '<tr class="' + rowCls + '" ' + rowStyle + '>' +
         '<td>' + (currentPage * pageSize + i + 1) + '</td>' +
@@ -1164,19 +1134,13 @@ async function loadBackups() {
   }).join('');
 }
 async function restoreBackup(id) {
-  var ok = await showConfirm('⚠️ بازیابی پشتیبان', 'تمام اسناد فعلی با پشتیبان جایگزین می‌شوند.\nمطمئنید؟', 'danger');
+  var ok = await showConfirm('⚠️ بازیابی پشتیبان', 'تمام اسناد فعلی با پشتیبان جایگزین می‌شوند. مطمئنید؟', 'danger');
   if (!ok) return;
   var r = await sb.from('backups').select('data').eq('id', id).single();
   if (r.error || !r.data) { toast('خطا', 'error'); return; }
-
-  // حذف همه و درج مجدد
   await sb.from('documents').delete().neq('id', '00000000-0000-0000-0000-000000000000');
   if (r.data.data && r.data.data.length) {
-    var cleanData = r.data.data.map(function(d) {
-      var copy = Object.assign({}, d);
-      delete copy.id;
-      return copy;
-    });
+    var cleanData = r.data.data.map(function(d) { var c = Object.assign({}, d); delete c.id; return c; });
     await sb.from('documents').insert(cleanData);
   }
   toast('✅ بازیابی انجام شد', 'success');
@@ -1184,7 +1148,6 @@ async function restoreBackup(id) {
   load();
 }
 
-/* ============ Backup خودکار روزانه ============ */
 function startAutoBackup() {
   if (currentRole !== 'admin') return;
   var last = localStorage.getItem('moto_last_backup');
@@ -1195,37 +1158,6 @@ function startAutoBackup() {
       localStorage.setItem('moto_last_backup', String(Date.now()));
     }, 10000);
   }
-}
-
-/* ============ صف آفلاین ============ */
-async function queuePending(action) {
-  try {
-    var db = await openDB();
-    var tx = db.transaction('pending', 'readwrite');
-    tx.objectStore('pending').add(action);
-  } catch(e) {}
-}
-async function syncPending() {
-  try {
-    var db = await openDB();
-    var tx = db.transaction('pending', 'readwrite');
-    var req = tx.objectStore('pending').getAll();
-    req.onsuccess = async function() {
-      var list = req.result || [];
-      if (!list.length) return;
-      for (var i=0; i<list.length; i++) {
-        try {
-          var a = list[i];
-          if (a.type === 'insert') await sb.from('documents').insert([a.data]);
-          else if (a.type === 'update') await sb.from('documents').update(a.data).eq('id', a.id);
-        } catch(e) {}
-      }
-      var tx2 = db.transaction('pending', 'readwrite');
-      tx2.objectStore('pending').clear();
-      toast('✅ ' + list.length + ' عملیات همگام شد', 'success');
-      load();
-    };
-  } catch(e) {}
 }
 
 /* ============ اکسل ============ */
@@ -1254,9 +1186,8 @@ function docsToRows(list) {
 }
 
 function exportExcel(which) {
-  var list = which === 'filtered' ? docs : docs;
-  if (!list.length) { toast('لیست خالی', 'warning'); return; }
-  var rows = docsToRows(list);
+  if (!docs.length) { toast('لیست خالی', 'warning'); return; }
+  var rows = docsToRows(docs);
   var ws = XLSX.utils.json_to_sheet(rows);
   ws['!cols'] = [{wch:6},{wch:20},{wch:18},{wch:20},{wch:14},{wch:12},{wch:12},{wch:30}];
   var wb = XLSX.utils.book_new();
@@ -1337,7 +1268,7 @@ async function importExcel(event) {
         var rUpd = await sb.from('documents').update(u.neu).eq('id', u.id);
         if (rUpd.error) errCount++; else okUpd++;
       }
-      toast('✅ ' + okAdd + ' جدید، ' + okUpd + ' به‌روزرسانی' + (errCount ? '، ' + errCount + ' خطا' : ''), 'success');
+      toast('✅ ' + okAdd + ' جدید، ' + okUpd + ' به‌روزرسانی', 'success');
       await audit('import_excel', 'documents', null, {added: okAdd, updated: okUpd});
       await load();
     } catch (err) { toast('خطا: ' + err.message, 'error'); }
@@ -1371,14 +1302,13 @@ function updateFileUI() {
   var fs = document.getElementById('fileStatus');
   var linkBtn = document.getElementById('linkFileBtn');
   var unlinkBtn = document.getElementById('unlinkFileBtn');
-  var reloadBtn = document.getElementById('reloadFileBtn');
   if (excelFileHandle) {
     fs.className = 'file-status fs-on';
     fs.textContent = '✅ ' + (excelFileHandle.name || 'متصل');
-    linkBtn.style.display = 'none'; unlinkBtn.style.display = ''; reloadBtn.style.display = '';
+    linkBtn.style.display = 'none'; unlinkBtn.style.display = '';
   } else {
     fs.className = 'file-status fs-off'; fs.textContent = 'وصل نیست';
-    linkBtn.style.display = ''; unlinkBtn.style.display = 'none'; reloadBtn.style.display = 'none';
+    linkBtn.style.display = ''; unlinkBtn.style.display = 'none';
   }
 }
 async function tryAutoSaveExcel() {
@@ -1397,9 +1327,7 @@ async function tryAutoSaveExcel() {
     await writable.write(out); await writable.close();
   } catch (err) { console.warn(err); }
 }
-async function reloadFromExcelFile() { toast('از دکمه ورود اکسل استفاده کنید', 'info'); }
 
-/* ============ IndexedDB Handles ============ */
 async function saveFileHandle(handle) {
   try { var db = await openDB(); var tx = db.transaction('handles', 'readwrite'); tx.objectStore('handles').put(handle, 'excel'); } catch(e) {}
 }
@@ -1434,17 +1362,10 @@ updateBar();
     await loadProfile();
     sessionStorage.setItem('moto_auth', '1');
     logged = true;
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('main').style.display = 'block';
-    document.getElementById('logoutBtn').style.display = 'block';
-    document.getElementById('userInfo').style.display = 'block';
-    document.getElementById('userInfo').textContent = currentUser.email + ' (' + roleLabel(currentRole) + ')';
+    showMainUI();
     init();
   }
 })();
-
-// فیلتر وضعیت هم با سرور
-document.getElementById('fstat').addEventListener('change', function(){ currentPage = 0; serverSearch(); });
 </script>
 
 <div style="text-align:center;padding:15px 10px;margin-top:20px;color:#7f8c8d;font-size:12px;border-top:1px solid #ddd;">
